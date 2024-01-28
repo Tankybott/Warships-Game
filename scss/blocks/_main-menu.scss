@@ -1,0 +1,23 @@
+.main-menu {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inset: 0 0;
+  font-size: 1rem;
+
+  &__layer {
+    &--start-page {
+    }
+
+    &--select-level {
+    }
+  }
+
+  &__button {
+    font-size: 3em;
+    padding: 1rem;
+    margin: 1rem;
+    width: 250px;
+  }
+}

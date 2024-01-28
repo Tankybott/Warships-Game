@@ -1,0 +1,255 @@
+.main-menu {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inset: 0 0;
+  font-size: 1rem;
+}
+.main-menu__button {
+  font-size: 3em;
+  padding: 1rem;
+  margin: 1rem;
+  width: 250px;
+}
+
+.sea-map {
+  display: grid;
+  background-color: green;
+  border: 1px solid black;
+}
+.sea-map__sea-cell {
+  width: auto;
+  height: auto;
+  background-color: transparent;
+  border: 1px solid black;
+}
+
+.shoot-map {
+  display: grid;
+  background-color: yellow;
+  border: 1px solid black;
+  width: 100px;
+  height: 100px;
+}
+.shoot-map__shoot-cell {
+  width: auto;
+  height: auto;
+  background-color: yellow;
+  border: 1px solid black;
+}
+
+.ships-display {
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+}
+.ships-display__ship-counter {
+  text-align: center;
+  font-size: 3em;
+  color: white;
+  padding: 4rem;
+  border: 1px solid white;
+}
+.ships-display__display {
+  display: grid;
+  grid-template-rows: 1;
+  height: 100%;
+}
+.ships-display__display-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid white;
+}
+.ships-display__ship {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1em;
+  width: 50px;
+  height: 50px;
+  background-color: #fff;
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: black;
+}
+.ships-display__ship--disactive {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.console {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+}
+.console__text {
+  font-size: 5em;
+  color: white;
+}
+
+.steering-panel {
+  position: relative;
+  overflow: hidden;
+  font-size: 1rem;
+}
+.steering-panel__shoot-panel {
+  position: absolute;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  z-index: 2;
+}
+.steering-panel__shoot-panel--hidden {
+  top: -100%;
+}
+.steering-panel__placing-panel {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+.steering-panel__placing-panel--hidden {
+  display: none;
+}
+.steering-panel__button {
+  width: 150px;
+  height: 35px;
+  margin-top: 2rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 62.5%;
+  scroll-behavior: smooth;
+  font-family: "Work Sans", sans-serif;
+}
+
+main {
+  display: flex;
+  justify-content: center;
+}
+
+.menu-container {
+  display: flex;
+  width: 95vw;
+  height: 100vh;
+  background-color: grey;
+}
+
+.game-container {
+  display: grid;
+  grid-template-rows: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  width: 95vw;
+  height: 100vh;
+}
+.game-container__map-container {
+  grid-area: 1/1/4/3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: blue;
+}
+.game-container__sea-map {
+  position: absolute;
+}
+.game-container__shoot-map {
+  position: absolute;
+}
+.game-container__console {
+  grid-area: 4/1/5/3;
+  background-color: grey;
+}
+.game-container__ships-display {
+  grid-area: 1/3/3/4;
+  background-color: red;
+}
+.game-container__steering-panel {
+  grid-area: 3/3/5/4;
+  background-color: purple;
+}
+
+.hidden {
+  visibility: hidden;
+  display: none;
+  pointer-events: none;
+}
+
+.border-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: black;
+  color: white;
+  font-size: 2em;
+}
+
+.blink {
+  background-color: lime;
+}
+
+.ship {
+  background-color: #fff;
+}
+
+.sunk {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.blink-red {
+  background-color: red;
+}
+
+.shoot-target {
+  background-color: brown;
+  pointer-events: none;
+}
+
+.non-clickable {
+  pointer-events: none;
+}
+
+.shot {
+  border: 5px solid red;
+  animation: blink 1s forwards;
+}
+
+.hit {
+  background-color: violet;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}/*# sourceMappingURL=main.css.map */

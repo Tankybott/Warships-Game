@@ -1,0 +1,40 @@
+.steering-panel {
+  position: relative;
+  overflow: hidden;
+  font-size: 1rem;
+
+  &__shoot-panel {
+    position: absolute;
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    z-index: 2;
+
+    &--hidden {
+      top: -100%;
+    }
+  }
+
+  &__placing-panel {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+
+    &--hidden {
+      display: none;
+    }
+  }
+
+  &__button {
+    width: 150px;
+    height: 35px;
+    margin-top: 2rem;
+  }
+}

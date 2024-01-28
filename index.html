@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Warships</title>
+
+    <link rel="stylesheet" href="css/main.css" />
+  </head>
+  <body>
+    <main>
+      <div class="menu-container" data-main-menu-screen>
+        <div class="main-menu menu-container__main-menu">
+          <div
+            class="main-menu__layer main-menu__layer--start-page"
+            data-start-page
+          >
+            <button class="main-menu__button" data-pvc-button>
+              Player vs Computer
+            </button>
+          </div>
+          <div
+            class="main-menu__layer main-menu__layer--select-level hidden"
+            data-select-level
+          >
+            <button class="main-menu__button" data-small-button>Small</button>
+            <button class="main-menu__button" data-normal-button>Normal</button>
+            <button class="main-menu__button" data-big-button>Big</button>
+          </div>
+        </div>
+      </div>
+      <div class="game-container hidden" data-game-screen>
+        <div class="game-container__map-container" data-map-container>
+          <div class="game-container__sea-map sea-map" data-sea-map></div>
+          <div
+            class="game-container__shoot-map game-container__shoot-map--hidden shoot-map hidden"
+            data-shoot-map
+          ></div>
+        </div>
+        <div class="console game-container__console">
+          <p class="console__text" data-game-console></p>
+        </div>
+        <div class="ships-display game-container__ships-display">
+          <p class="ships-display__ship-counter" data-ships-display-counter>
+            0
+          </p>
+          <div class="ships-display__display" data-ships-display></div>
+        </div>
+        <div class="steering-panel game-container__steering-panel">
+          <div
+            class="steering-panel__shoot-panel steering-panel__shoot-panel--hidden"
+            data-shoot-panel
+          >
+            <button class="steering-panel__button" data-shoot-button>
+              Shoot
+            </button>
+          </div>
+          <div class="steering-panel__placing-panel" data-placing-panel>
+            <button class="steering-panel__button" data-place-button>
+              Place
+            </button>
+            <button class="steering-panel__button" data-rotate-button>
+              Rotate
+            </button>
+            <button class="steering-panel__button" data-change-button>
+              Change place
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script type="module" src="./js/Game.js"></script>
+  </body>
+</html>

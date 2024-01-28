@@ -1,0 +1,144 @@
+@use "index" as i;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 62.5%;
+  scroll-behavior: smooth;
+  font-family: "Work Sans", sans-serif;
+}
+
+main {
+  display: flex;
+  justify-content: center;
+}
+
+// CONTAINERS
+.menu-container {
+  display: flex;
+  width: 95vw;
+  height: 100vh;
+  background-color: grey;
+}
+
+.game-container {
+  display: grid;
+  grid-template-rows: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  width: 95vw;
+  height: 100vh;
+
+  &__map-container {
+    grid-area: 1/1/4/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: blue;
+  }
+
+  &__sea-map {
+    position: absolute;
+  }
+
+  &__shoot-map {
+    position: absolute;
+  }
+
+  &__console {
+    grid-area: 4/1/5/3;
+    background-color: grey;
+  }
+
+  &__ships-display {
+    grid-area: 1/3/3/4;
+    background-color: red;
+  }
+
+  &__steering-panel {
+    grid-area: 3/3/5/4;
+    background-color: purple;
+  }
+}
+
+//GLOBAL CLASSES
+
+.hidden {
+  visibility: hidden;
+  display: none;
+  pointer-events: none;
+}
+
+.border-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: black;
+  color: white;
+  font-size: 2em;
+}
+
+.blink {
+  background-color: lime;
+}
+
+.ship {
+  background-color: #fff;
+}
+
+.sunk {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.blink-red {
+  background-color: red;
+}
+
+.shoot-target {
+  background-color: brown;
+  pointer-events: none;
+}
+
+.non-clickable {
+  pointer-events: none;
+}
+
+.shot {
+  border: 5px solid red;
+  animation: blink 1s forwards;
+}
+
+.hit {
+  background-color: violet;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  40% {
+    opacity: 0;
+  }
+
+  60% {
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}

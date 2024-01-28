@@ -1,0 +1,14 @@
+.shoot-map {
+  display: grid;
+  background-color: yellow;
+  border: 1px solid black;
+  width: 100px;
+  height: 100px;
+
+  &__shoot-cell {
+    width: auto;
+    height: auto;
+    background-color: yellow;
+    border: 1px solid black;
+  }
+}

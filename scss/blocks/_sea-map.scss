@@ -1,0 +1,12 @@
+.sea-map {
+  display: grid;
+  background-color: green;
+  border: 1px solid black;
+
+  &__sea-cell {
+    width: auto;
+    height: auto;
+    background-color: transparent;
+    border: 1px solid black;
+  }
+}

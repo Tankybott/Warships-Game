@@ -1,0 +1,11 @@
+.console {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+
+  &__text {
+    font-size: 5em;
+    color: white;
+  }
+}
