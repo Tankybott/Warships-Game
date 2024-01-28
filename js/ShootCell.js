@@ -1,4 +1,4 @@
-import { Cell } from "./cell.js";
+import { Cell } from "./Cell.js";
 
 export const DATA_SHOOT_CELL = "data-shoot-cell";
 
