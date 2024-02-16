@@ -43,6 +43,7 @@ export class ShootMap extends Map {
   }
 
   renderShootMap() {
+    this.shootMapElement.innerHTML = "";
     const type = "[data-shoot-cell]";
     this.#shootCells.flat().forEach((cell) => {
       this.shootMapElement.appendChild(cell.createElement());
@@ -97,14 +98,10 @@ export class ShootMap extends Map {
   }
 
   setCellAsHit({ x, y }) {
-    console.log(this.#shootCells);
-    console.log(x);
-    console.log(y);
     const cell = this.#shootCells
       .flat()
       .find((cell) => cell.x == x && cell.y == y);
 
-    console.log(cell);
     cell._isHit = true;
   }
 }

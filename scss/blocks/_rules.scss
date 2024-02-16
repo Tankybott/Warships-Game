@@ -1,0 +1,104 @@
+@use "../colors" as c;
+
+.rules {
+  position: relative;
+  background-color: #4e4f50;
+  border-radius: 20px;
+  border: 10px solid c.$metal-grey;
+  font-size: 1rem;
+
+  &__button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 1.4rem;
+  }
+
+  &__close-button-container {
+    display: flex;
+    justify-content: flex-end;
+    height: 10%;
+  }
+
+  &__close-button {
+    margin-top: 1.5rem;
+    margin-right: 1.5rem;
+  }
+
+  &__cards {
+    position: relative;
+  }
+
+  &__card {
+    position: absolute;
+    inset: 0 0;
+    transition: opacity 0.3s;
+    color: white;
+    padding: 2rem;
+    &--hidden {
+      opacity: 0;
+    }
+  }
+
+  &__card-title {
+    font-size: 2em;
+    text-align: center;
+    padding: 2rem;
+    padding-top: 0;
+  }
+
+  &__card-text {
+    font-size: 1.3em;
+  }
+
+  &__arrow-buttons-container {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 2rem;
+  }
+
+  &__arrow-button {
+    margin-left: 2rem;
+    margin-right: 2rem;
+    font-size: 2em;
+    padding-top: 1.3rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
+@media (min-width: 576px) {
+  .rules {
+    font-size: 0.8rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .rules {
+    font-size: 1.4rem;
+
+    &__button {
+      width: 4rem;
+      height: 4rem;
+    }
+
+    &__close-button-container {
+      height: 8%;
+    }
+
+    &__arrow-button {
+      padding-top: 1.2rem;
+      padding-bottom: 1.8rem;
+    }
+
+    &__card-text {
+      font-size: 1.1em;
+      padding: 4rem;
+      padding-top: 1rem;
+    }
+  }
+}

@@ -1,0 +1,119 @@
+@use "./colors" as c;
+
+.border-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: c.$main-black;
+  border: 1px solid c.$main-black;
+  color: white;
+  font-size: 0.8em;
+}
+
+.blink {
+  background-color: c.$off-green;
+}
+
+.ship {
+  background-color: c.$off-green;
+}
+
+.sunk {
+  background-color: c.$transparent-green;
+}
+
+.blink-red {
+  background-color: c.$main-red;
+}
+
+.shoot-target {
+  position: relative;
+  background-color: transparent;
+  pointer-events: none;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("../img/svg/cross-small-svgrepo-com.svg");
+    background-size: contain;
+    opacity: 0;
+    animation: fadeInCross 0.2s forwards;
+  }
+}
+
+.shoot-target-hover {
+  background-color: c.$main-gold;
+}
+
+.hit {
+  &::before {
+    animation: none;
+    animation: fadeInCircle 0.25s forwards;
+  }
+}
+
+.non-clickable {
+  pointer-events: none;
+}
+
+.shot {
+  border: 1px solid c.$main-green;
+  animation: blink 1.5s forwards;
+}
+
+@keyframes blink {
+  0% {
+    border: 1px solid c.$main-green;
+  }
+
+  14% {
+    border: 3px solid c.$main-green;
+  }
+
+  29% {
+    border: 3px solid c.$main-red;
+  }
+
+  43% {
+    border: 3px solid c.$main-green;
+  }
+
+  57% {
+    border: 3px solid c.$main-red;
+  }
+
+  71% {
+    border: 3px solid c.$main-green;
+  }
+
+  86% {
+    border: 3px solid c.$main-red;
+  }
+
+  100% {
+    border: 3px solid c.$main-green;
+  }
+}
+
+@keyframes fadeInCross {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInCircle {
+  0% {
+    opacity: 0;
+    background-image: url("../img/svg/cross-small-svgrepo-com.svg");
+  }
+
+  100% {
+    opacity: 1;
+    background-image: url("../img/svg/cross-circle-svgrepo-com.svg");
+  }
+}

@@ -27,8 +27,8 @@ export class Map extends UI {
 
   #calculateMapSize() {
     const mapSize = Math.min(
-      this.mapContainer.clientHeight - this.mapContainer.clientHeight * 0.02,
-      this.mapContainer.clientWidth - this.mapContainer.clientWidth * 0.02
+      this.mapContainer.clientHeight - this.mapContainer.clientHeight * 0.05,
+      this.mapContainer.clientWidth - this.mapContainer.clientWidth * 0.05
     );
     return mapSize;
   }

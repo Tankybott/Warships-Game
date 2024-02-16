@@ -2,30 +2,58 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Warships</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Saira+Stencil+One&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="css/main.css" />
   </head>
+
   <body>
-    <main>
+    <main class="main">
       <div class="menu-container" data-main-menu-screen>
         <div class="main-menu menu-container__main-menu">
           <div
             class="main-menu__layer main-menu__layer--start-page"
             data-start-page
           >
-            <button class="main-menu__button" data-pvc-button>
+            <h1 class="main-menu__title">WarShips</h1>
+            <button class="warships-button main-menu__button" data-pvc-button>
               Player vs Computer
+            </button>
+            <button class="warships-button main-menu__button" data-rules-button>
+              Rules
             </button>
           </div>
           <div
             class="main-menu__layer main-menu__layer--select-level hidden"
             data-select-level
           >
-            <button class="main-menu__button" data-small-button>Small</button>
-            <button class="main-menu__button" data-normal-button>Normal</button>
-            <button class="main-menu__button" data-big-button>Big</button>
+            <h1 class="main-menu__title">WarShips</h1>
+            <button class="warships-button main-menu__button" data-small-button>
+              Small
+            </button>
+            <button
+              class="warships-button main-menu__button"
+              data-normal-button
+            >
+              Normal
+            </button>
+            <button class="warships-button main-menu__button" data-big-button>
+              Big
+            </button>
           </div>
         </div>
       </div>
@@ -38,32 +66,159 @@
           ></div>
         </div>
         <div class="console game-container__console">
-          <p class="console__text" data-game-console></p>
+          <div class="console__text-container">
+            <p class="console__text" data-game-console></p>
+          </div>
         </div>
         <div class="ships-display game-container__ships-display">
-          <p class="ships-display__ship-counter" data-ships-display-counter>
-            0
-          </p>
+          <div class="ships-display__ships-counter-container">
+            <p class="ships-display__ship-counter" data-ships-display-counter>
+              0
+            </p>
+          </div>
           <div class="ships-display__display" data-ships-display></div>
         </div>
         <div class="steering-panel game-container__steering-panel">
-          <div
-            class="steering-panel__shoot-panel steering-panel__shoot-panel--hidden"
-            data-shoot-panel
-          >
-            <button class="steering-panel__button" data-shoot-button>
+          <div class="steering-panel__shoot-panel" data-shoot-panel>
+            <button
+              class="warships-button steering-panel__button"
+              data-shoot-button
+            >
               Shoot
+            </button>
+            <button
+              class="warships-button steering-panel__button"
+              data-main-menu-button
+            >
+              Main menu
             </button>
           </div>
           <div class="steering-panel__placing-panel" data-placing-panel>
-            <button class="steering-panel__button" data-place-button>
+            <button
+              class="warships-button steering-panel__button"
+              data-place-button
+            >
               Place
             </button>
-            <button class="steering-panel__button" data-rotate-button>
+            <button
+              class="warships-button steering-panel__button"
+              data-rotate-button
+            >
               Rotate
             </button>
-            <button class="steering-panel__button" data-change-button>
+            <button
+              class="warships-button steering-panel__button"
+              data-change-button
+            >
               Change place
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="popup-container popup-container--hidden" data-main-menu-popup>
+        <div class="main-menu-popup">
+          <p class="main-menu-popup__quote">Are you sure you want to quit?</p>
+          <div class="main-menu-popup__button-container">
+            <button
+              class="main-menu-popup__button warships-button"
+              data-confirmation-quit-button
+            >
+              Yes
+            </button>
+            <button
+              class="main-menu-popup__button warships-button"
+              data-confirmation-quit-cancel-button
+            >
+              No
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="rules-container rules-container--hidden" data-rules-container>
+        <div class="rules rules-container__rules">
+          <div class="rules__close-button-container">
+            <button
+              class="rules__close-button rules__button warships-button"
+              data-rules-exit-button
+            >
+              x
+            </button>
+          </div>
+          <div class="rules__cards" data-rules-cards>
+            <div class="rules__card rules__card--general rules__card--hidden">
+              <h3 class="rules__card-title">General game rules</h3>
+              <p class="rules__card-text">
+                Each player has the same number of ships to place. When placing
+                ships, it must be ensured that the distance from other ships is
+                at least one grid square, including diagonally. <br /><br />
+                After placing the ships, the shooting phase begins, with the
+                starting player selected randomly. After each missed shot, the
+                turn order switches, while after each hit, the player who scored
+                the hit can take another shot. <br /><br />
+                The player who sinks all of the opponent's ships wins.
+              </p>
+            </div>
+            <div class="rules__card rules__card--placing rules__card--hidden">
+              <h3 class="rules__card-title">Ship Placement:</h3>
+              <p class="rules__card-text">
+                To place a ship in a chosen location, click on the desired grid
+                square. <br /><br />
+                If squares turn red, it indicates that the ship collides with
+                other ships or the edge of the map, in which case another
+                location must be chosen. <br /><br />
+                When the squares are green, it means the ship can be placed
+                there.<br /><br />
+                To confirm the ship's position, press the "Place" button, then
+                proceed to place the next ship or enter the shooting phase (if
+                it was the last ship to be placed). <br /><br />
+                If you wish to change the position of a placed (but not yet
+                confirmed) ship, click the "Change Place" button. <br /><br />
+                To change the direction in which the ship is placed, click the
+                "Rotate" button.
+              </p>
+            </div>
+            <div class="rules__card rules__card--shooting rules__card--hidden">
+              <h3 class="rules__card-title">Shooting:</h3>
+              <p class="rules__card-text">
+                The grid used for shooting is colored gold. To take a shot,
+                click on the desired grid square, then press the "Shoot" button.
+                <br /><br />
+                The locations where the player has fired shots are marked with a
+                cross, while hit squares are marked with a cross inside a
+                circle. You must pay attention to the feedback from the
+                terminal. <br /><br />
+                When an opponent's ship is sunk, the terminal informs us of
+                this. You must remember which ships are sunk and utilize the
+                information that squares adjacent to a sunk ship cannot contain
+                another ship!
+              </p>
+            </div>
+            <div
+              class="rules__card rules__card--ship-display rules__card--hidden"
+            >
+              <h3 class="rules__card-title">Ships Display:</h3>
+              <p class="rules__card-text">
+                The screen displaying active ships shows how many ships we have
+                remaining active (not sunk). When a ship is placed, its color
+                changes from dimmed to brighter. <br /><br />
+                In the event of a ship being destroyed, it returns to a dimmed
+                color.
+              </p>
+            </div>
+          </div>
+          <div class="rules__arrow-buttons-container">
+            <button
+              class="rules__arrow-button rules__button warships-button"
+              data-arrow-button-left
+            >
+              <
+            </button>
+            <button
+              class="rules__arrow-button rules__button warships-button"
+              data-arrow-button-right
+            >
+              >
             </button>
           </div>
         </div>

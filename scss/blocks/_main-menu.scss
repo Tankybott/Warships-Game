@@ -6,18 +6,56 @@
   inset: 0 0;
   font-size: 1rem;
 
-  &__layer {
-    &--start-page {
-    }
-
-    &--select-level {
-    }
+  &__button {
+    font-size: 2em;
+    padding: 1rem 2rem;
+    margin: 1rem;
   }
 
-  &__button {
-    font-size: 3em;
-    padding: 1rem;
-    margin: 1rem;
-    width: 250px;
+  &__title {
+    color: white;
+    font-family: "Saira Stencil One", sans-serif;
+    font-size: 6em;
+    padding-bottom: 9rem;
+    text-align: center;
+    text-shadow: 5px 5px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  &__layer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+@media (orientation: landscape) {
+  .main-menu {
+    &__title {
+      font-size: 5rem;
+      padding-bottom: 2rem;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .main-menu {
+    &__title {
+      font-size: 9rem;
+      padding-bottom: 9rem;
+    }
+
+    &__button {
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+  }
+}
+
+@media (min-width: 1400px) {
+  .main-menu {
+    &__title {
+      font-size: 13rem;
+      padding-bottom: 7rem;
+    }
   }
 }

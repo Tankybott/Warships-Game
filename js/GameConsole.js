@@ -31,7 +31,7 @@ export class GameConsole extends UI {
           setTimeout(typeNextCharacter, 25);
         } else {
           // Wait for an additional second (1000 milliseconds) before resolving
-          setTimeout(resolve, 1000);
+          setTimeout(resolve, 1100);
         }
       };
 

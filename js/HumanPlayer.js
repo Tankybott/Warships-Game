@@ -7,11 +7,10 @@ import { DATA_SEA_CELL } from "./SeaCell.js";
 
 export const SHIP_CSS = "ship";
 export const SHOOT_TARGET_CSS = "shoot-target";
+const SHOOT_TARGET_HOVER_CSS = "shoot-target-hover";
 export const HIT_CSS = "hit";
 const BLINK_CSS = "blink";
 const DECLINE_BLINK_CSS = "blink-red";
-const SHOOT_PANEL_HIDDEN_CSS = "steering-panel__shoot-panel--hidden";
-const PLACING_PANEL_HIDDEN_CSS = "steering-panel__placing-panel--hidden";
 
 export class HumanPlayer extends Player {
   #lastShipPlacement;
@@ -41,6 +40,7 @@ export class HumanPlayer extends Player {
     this.playerConsole = new GameConsole();
     this.#playerSeaMap = new SeaMap(mapSize);
     this.#playerShootMap = new ShootMap(mapSize);
+    this.#lastShootPlacement = null;
     this.playerShipsDisplay = new ShipDisplay(
       numberOfFiveCellShips,
       numberOfFourCellShips,
@@ -54,8 +54,6 @@ export class HumanPlayer extends Player {
     this.#isLastPlacePossibleToShip = false;
 
     //variables and flags for making shot
-
-    this.#lastShootPlacement = null;
 
     this.#bindElemnts();
     this.#renderPlayersTable();
@@ -76,16 +74,16 @@ export class HumanPlayer extends Player {
     this.rotateButtonElement = this.getElement(this.UISelectors.rotateButton);
     this.shootButtonElement = this.getElement(this.UISelectors.shootButton);
     this.changeButtonElement = this.getElement(this.UISelectors.changeButton);
+    this.quitButtonElement = this.getElement(this.UISelectors.quitButton);
   }
 
   #renderPlayersTable() {
     this.#playerShootMap.renderShootMap();
-    this.#playerSeaMap.bindElements();
     this.#playerSeaMap.renderSeaMap();
-    this.#setSeaMapSize();
+    this.setSeaMapSize();
   }
 
-  #setSeaMapSize() {
+  setSeaMapSize() {
     this.#playerSeaMap.setMapSize(this.#playerSeaMap.seaMapElement);
     this.#playerShootMap.setMapSize(this.#playerShootMap.shootMapElement);
   }
@@ -152,6 +150,11 @@ export class HumanPlayer extends Player {
 
         this.changeButtonElement.addEventListener("click", handleChangeClick);
         this.rotateButtonElement.addEventListener("click", rotate);
+        this.rotateButtonElement.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+          }
+        });
 
         const removeEventListeners = () => {
           allSeaCellsElements.forEach((cell) => {
@@ -165,6 +168,10 @@ export class HumanPlayer extends Player {
             handlePlaceButtonClick
           );
           this.rotateButtonElement.removeEventListener("click", rotate);
+          this.changeButtonElement.removeEventListener(
+            "click",
+            handleChangeClick
+          );
         };
 
         this.placeButtonElement.addEventListener(
@@ -187,7 +194,6 @@ export class HumanPlayer extends Player {
   }
 
   #changeShip() {
-    console.log(this.#lastShipPlacement);
     this.#deleteCssClassFromShips(this.#lastShipPlacement);
     this.placeButtonElement.disabled = true;
     this.changeButtonElement.disabled = true;
@@ -463,9 +469,6 @@ export class HumanPlayer extends Player {
     const allShootCellsElements = this.getElements(allShootCellsSelector);
 
     this.shootButtonElement.disabled = true;
-    this.placingPanelElement.classList.add(PLACING_PANEL_HIDDEN_CSS);
-    this.shootPanelElement.classList.remove(SHOOT_PANEL_HIDDEN_CSS);
-
     const handleCellMouseOver = (event) => {
       const cell = event.currentTarget;
       this.#showTargetedShootCell(cell);
@@ -492,6 +495,8 @@ export class HumanPlayer extends Player {
         "click",
         handleShootButtonClick
       );
+
+      this.quitButtonElement.removeEventListener("click", removeEventListeners);
     };
 
     const handleShootButtonClick = () => {
@@ -505,7 +510,9 @@ export class HumanPlayer extends Player {
       cell.addEventListener("click", handleCellClick);
     });
 
+    //delete event listener in case that there is one after reseting game
     this.shootButtonElement.addEventListener("click", handleShootButtonClick);
+    this.quitButtonElement.addEventListener("click", removeEventListeners);
 
     await new Promise((resolve) => {
       this.shootButtonElement.addEventListener("click", () => resolve());
@@ -515,11 +522,11 @@ export class HumanPlayer extends Player {
   }
 
   #showTargetedShootCell(cell) {
-    cell.classList.add(BLINK_CSS);
+    cell.classList.add(SHOOT_TARGET_HOVER_CSS);
   }
 
   #hideTargetedShootCell(cell) {
-    cell.classList.remove(BLINK_CSS);
+    cell.classList.remove(SHOOT_TARGET_HOVER_CSS);
   }
 
   #setShootingTarget(cell) {
@@ -536,7 +543,7 @@ export class HumanPlayer extends Player {
           this.#lastShootPlacement.y
         }"]`
       );
-      lastShootTarget.classList.remove("shoot-target");
+      lastShootTarget.classList.remove(SHOOT_TARGET_CSS);
     }
 
     cell.classList.add(SHOOT_TARGET_CSS);

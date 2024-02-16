@@ -3,22 +3,49 @@ import { UI } from "./UI.js";
 import { HumanPlayer } from "./HumanPlayer.js";
 import { ComputerPlayer } from "./ComputerPlayer.js";
 
+const POPUP_HIDDEN_CSS = "popup-container--hidden";
+
 class Game extends UI {
   #mainMenu = new MainMenu();
 
   #lastShoot = null;
   #firstPlayer = null;
   #secondPlayer = null;
-  #isLastShotHit = false;
 
   constructor() {
     super();
     this.#bindToElements();
+    this.#addEventListeners();
+    this.player = null;
+    this.computerPlayer = null;
   }
 
   #bindToElements() {
     this.gameScreen = this.getElement(this.UISelectors.gameScreen);
     this.mainMenuScreen = this.getElement(this.UISelectors.mainMenuScreen);
+    this.mainMenuButton = this.getElement(this.UISelectors.mainMenuButton);
+    this.quitButtonElement = this.getElement(this.UISelectors.quitButton);
+    this.quitCancelButtonElement = this.getElement(
+      this.UISelectors.quitCancelButton
+    );
+    this.mainMenuPopup = this.getElement(this.UISelectors.mainMenuPopup);
+  }
+
+  #addEventListeners() {
+    window.addEventListener("resize", () => this.#setMapSize());
+    this.quitButtonElement.addEventListener("click", () => this.#resetGame());
+    this.mainMenuButton.addEventListener("click", () =>
+      this.#showMainMenuPopup()
+    );
+    this.quitCancelButtonElement.addEventListener("click", () =>
+      this.#hideMainMenuPopup()
+    );
+  }
+
+  #setMapSize() {
+    if (this.player) {
+      this.player.setSeaMapSize();
+    }
   }
 
   playGame({
@@ -48,6 +75,7 @@ class Game extends UI {
       numberOfOneCellShips
     );
 
+    this.player.playerConsole.sendConsoleMsg("Deploy-your-ships");
     this.#drawPlayerToStart();
   }
 
@@ -61,6 +89,7 @@ class Game extends UI {
         "An-ennemy-starts-shooting"
       );
       this.#startShooting();
+      this.#showShootingPanel();
     } else if (draw === 1) {
       this.#firstPlayer = this.player;
       this.#secondPlayer = this.computerPlayer;
@@ -68,21 +97,38 @@ class Game extends UI {
       await this.player.playerConsole.sendConsoleMsg(
         "You-are-starting-shooting"
       );
-      this.toggleHideElement(
+      this.changeMapsDisplay(
         this.player._shootMap.shootMapElement,
         this.player._seaMap.seaMapElement
       );
       this.#startShooting();
+      this.#showShootingPanel();
     }
+  }
+  //remember to set css classes as variables
+  #showShootingPanel() {
+    this.player.shootPanelElement.classList.add(
+      "steering-panel__shoot-panel--shown"
+    );
+    this.player.placingPanelElement.classList.add(
+      "steering-panel__placing-panel--hidden"
+    );
   }
 
   async #startShooting() {
+    let coordiantes;
+
     const getShoot = async () => {
       this.#lastShoot = await this.#firstPlayer.makeShoot();
       this.#sendShootInfoToPlayer();
     };
     await getShoot();
-    const coordiantes = {
+
+    if (this.#lastShoot === null) {
+      return;
+    }
+
+    coordiantes = {
       XValue: this.#lastShoot.x,
       YValue: this.#lastShoot.y,
     };
@@ -98,7 +144,7 @@ class Game extends UI {
           this.player._shootMap.refreshShootMap();
         } else if (this.#firstPlayer === this.computerPlayer) {
           await this.player.playerConsole.sendConsoleMsg(
-            "An-enemy-hit-your-ship!-An-enemy-is-is-shooting "
+            "An-enemy-hit-your-ship!-An-enemy-is-shooting "
           );
           this.player._seaMap.refreshSeaMap();
           this.#sendHitInfoToComputer();
@@ -139,19 +185,22 @@ class Game extends UI {
           await this.player.playerConsole.sendConsoleMsg(
             "You-missed,-an-enemy-is-shooting!"
           );
+          this.changeMapsDisplay(
+            this.player._seaMap.seaMapElement,
+            this.player._shootMap.shootMapElement
+          );
         } else if (this.#firstPlayer === this.computerPlayer) {
           this.player._seaMap.refreshSeaMap();
           await this.player.playerConsole.sendConsoleMsg(
             "An-enemy-missed,-mark-yours-shoot!"
           );
           this.computerPlayer.handleMiss();
+          this.changeMapsDisplay(
+            this.player._shootMap.shootMapElement,
+            this.player._seaMap.seaMapElement
+          );
         }
         this.#changePlayers();
-
-        this.toggleHideElement(
-          this.player._shootMap.shootMapElement,
-          this.player._seaMap.seaMapElement
-        );
 
         this.#startShooting();
         break;
@@ -186,11 +235,26 @@ class Game extends UI {
       await this.player.playerConsole.sendConsoleMsg(
         `You-won,-you-have-${this.player._numberOfAllShips}-ships-left`
       );
+      this.changeMapsDisplay(
+        this.player._seaMap.seaMapElement,
+        this.player._shootMap.shootMapElement
+      );
       return;
     } else if (this.player._numberOfAllShips === 0) {
       await this.player.playerConsole.sendConsoleMsg(
         `You-lost,-an-enemy-have-${this.computerPlayer._numberOfAllShips}-ships-left`
       );
+      this.changeMapsDisplay(
+        this.player._seaMap.seaMapElement,
+        this.player._seaMap.seaMapElement
+      );
+
+      //site timeout is set to qdjust showing enemy ship map after players map fades out
+      setTimeout(() => {
+        this.computerPlayer._seaMap.renderSeaMap();
+        this.computerPlayer._seaMap.refreshSeaMap();
+      }, 300);
+
       return;
     }
   }
@@ -205,6 +269,39 @@ class Game extends UI {
       return false;
     }
   }
+
+  #resetGame() {
+    this.player.shootPanelElement.classList.remove(
+      "steering-panel__shoot-panel--shown"
+    );
+    this.player.placingPanelElement.classList.remove(
+      "steering-panel__placing-panel--hidden"
+    );
+    this.toggleHideElement(
+      this.player._seaMap.seaMapElement,
+      this.player._shootMap.shootMapElement
+    );
+    this.toggleHideElement(this.mainMenuScreen, this.gameScreen);
+    this.#mainMenu.hideSelectScreen();
+    this.#lastShoot = null;
+    this.#firstPlayer = null;
+    this.#secondPlayer = null;
+    this.player = null;
+    this.computerPlayer = null;
+    this.#hideMainMenuPopup();
+  }
+
+  #showMainMenuPopup() {
+    this.mainMenuPopup.classList.remove(POPUP_HIDDEN_CSS);
+  }
+
+  #hideMainMenuPopup() {
+    this.mainMenuPopup.classList.add(POPUP_HIDDEN_CSS);
+  }
 }
 
-export const game = new Game();
+export let game;
+
+window.onload = function () {
+  game = new Game();
+};

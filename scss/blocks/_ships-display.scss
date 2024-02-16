@@ -1,14 +1,26 @@
+@use "../colors" as c;
+
 .ships-display {
   display: flex;
   flex-direction: column;
   font-size: 1rem;
+  background-color: c.$main-black;
+
+  &__ships-counter-container {
+    border: 1px solid c.$main-green;
+  }
 
   &__ship-counter {
     text-align: center;
-    font-size: 3em;
-    color: white;
-    padding: 4rem;
-    border: 1px solid white;
+    font-size: 1.1em;
+    font-family: "Orbitron", sans-serif;
+    color: c.$main-green;
+    padding: 1rem;
+    transition: opacity 0.4s;
+
+    &--hidden {
+      opacity: 0;
+    }
   }
 
   &__display {
@@ -21,7 +33,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    border: 1px solid white;
+    border: 1px solid c.$main-green;
   }
 
   &__ship {
@@ -29,15 +41,106 @@
     justify-content: center;
     align-items: center;
     font-size: 1em;
-    width: 50px;
-    height: 50px;
-    background-color: #fff;
-    margin-top: 1rem;
+    width: 83%;
+    height: 24%;
+    background-color: c.$main-green;
     font-size: 1rem;
     color: black;
+    clip-path: polygon(
+      35% 31%,
+      65% 31%,
+      66% 55%,
+      100% 57%,
+      63% 83%,
+      32% 83%,
+      0 57%,
+      33% 55%
+    );
 
     &--disactive {
-      background-color: rgba(255, 255, 255, 0.5);
+      background-color: c.$transparent-green;
+    }
+
+    &--small-game {
+      height: 34%;
+      margin-top: 5px;
+      width: 85%;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .ships-display {
+    &__ship {
+      width: 60%;
+      font-size: 1.1em;
+
+      &--small-game {
+        height: 30%;
+        width: 70%;
+        margin-top: 10px;
+      }
+    }
+
+    &__ship-counter {
+      font-size: 2em;
+      padding: 1.5rem;
+    }
+  }
+
+  @media (orientation: portrait) {
+    .ships-display {
+      &__ship {
+        &--small-game {
+          height: 28%;
+          width: 50%;
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 992px) {
+  .ships-display {
+    &__ship {
+      width: 80%;
+      height: 16%;
+
+      &--small-game {
+        width: 60%;
+        margin-top: 10px;
+      }
+    }
+
+    &__ship-counter {
+      font-size: 1.8em;
+    }
+  }
+
+  @media (orientation: portrait) {
+    .ships-display {
+      &__ship {
+        height: 20%;
+
+        &--small-game {
+          height: 30%;
+          width: 60%;
+          margin-top: 10px;
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 1400px) {
+  .ships-display {
+    &__ship {
+      height: 20%;
+
+      &--small-game {
+        width: 60%;
+        margin-top: 20px;
+      }
     }
   }
 }

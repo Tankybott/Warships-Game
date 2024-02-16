@@ -1,14 +1,32 @@
+@use "../colors" as c;
+
 .shoot-map {
+  position: absolute;
   display: grid;
-  background-color: yellow;
-  border: 1px solid black;
-  width: 100px;
-  height: 100px;
+  background-color: black;
+  border: 20px solid c.$metal-grey;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1), 0 0 30px rgba(0, 0, 0, 0.3);
+  opacity: 1;
+  overflow: hidden;
+  transition: opacity 0.5s;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 20px 20px;
+    background-color: rgba(0, 0, 0, 1);
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity 1s;
+    pointer-events: none;
+  }
 
   &__shoot-cell {
+    opacity: 1;
     width: auto;
     height: auto;
-    background-color: yellow;
-    border: 1px solid black;
+    background-color: transparent;
+    border: 1px solid c.$main-gold;
   }
 }

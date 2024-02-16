@@ -1,62 +1,61 @@
 import { gameLevels } from "./GameLevels.js";
 import { UI } from "./UI.js";
 import { game } from "./Game.js";
+import { Rules } from "./Rules.js";
 
 export class MainMenu extends UI {
   constructor() {
     super();
     this.#bindToElements();
     this.#addEventListeners();
+
+    this.rules = new Rules();
   }
 
   #bindToElements() {
-    this.playerVsComputerButton = this.getElement(
+    this.playerVsComputerButtonElement = this.getElement(
       this.UISelectors.playerVsComputerButton
     );
-    this.smallSelectButton = this.getElement(
+    this.smallSelectButtonElement = this.getElement(
       this.UISelectors.smallSelectButton
     );
-    this.normalSelectButton = this.getElement(
+    this.normalSelectButtonElement = this.getElement(
       this.UISelectors.normalSelectButton
     );
-    this.bigSelectButton = this.getElement(this.UISelectors.bigSelectButton);
+    this.bigSelectButtonElement = this.getElement(
+      this.UISelectors.bigSelectButton
+    );
 
-    this.startPage = this.getElement(this.UISelectors.startPage);
-    this.selectLevel = this.getElement(this.UISelectors.selectLevel);
+    this.startPageElement = this.getElement(this.UISelectors.startPage);
+    this.selectLevelElement = this.getElement(this.UISelectors.selectLevel);
+    this.rulesOpenButtonElement = this.getElement(
+      this.UISelectors.rulesOpenButton
+    );
   }
 
   #addEventListeners() {
-    this.playerVsComputerButton.addEventListener("click", () =>
+    this.playerVsComputerButtonElement.addEventListener("click", () =>
       this.#showSelectScreen()
     );
-    this.normalSelectButton.addEventListener("click", () =>
-      game.playGame(gameLevels.normal)
-    );
-    this.smallSelectButton.addEventListener("click", () =>
-      game.playGame(gameLevels.small)
-    );
-    this.bigSelectButton.addEventListener("click", () =>
-      game.playGame(gameLevels.big)
-    );
+    this.normalSelectButtonElement.addEventListener("click", () => {
+      game.playGame(gameLevels.normal);
+    });
+    this.smallSelectButtonElement.addEventListener("click", () => {
+      game.playGame(gameLevels.small);
+    });
+    this.bigSelectButtonElement.addEventListener("click", () => {
+      game.playGame(gameLevels.big);
+    });
+    this.rulesOpenButtonElement.addEventListener("click", () => {
+      this.rules.openRules();
+    });
   }
 
   #showSelectScreen() {
-    this.toggleHideElement(this.startPage, this.selectLevel);
-    this.#removeEventListeners();
+    this.toggleHideElement(this.selectLevelElement, this.startPageElement);
   }
 
-  #removeEventListeners() {
-    this.playerVsComputerButton.removeEventListener("click", () =>
-      this.#showSelectScreen()
-    );
-    this.normalSelectButton.removeEventListener("click", () =>
-      game.playGame(gameLevels.normal)
-    );
-    this.smallSelectButton.removeEventListener("click", () =>
-      game.playGame(gameLevels.normal)
-    );
-    this.bigSelectButton.removeEventListener("click", () =>
-      game.playGame(gameLevels.normal)
-    );
+  hideSelectScreen() {
+    this.toggleHideElement(this.startPageElement, this.selectLevelElement);
   }
 }

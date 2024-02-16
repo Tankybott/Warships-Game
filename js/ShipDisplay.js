@@ -3,8 +3,10 @@ import { UI } from "./UI.js";
 const DISPLAY_COLUMN_CSS = "ships-display__display-column";
 const SHIP_CSS = "ships-display__ship";
 const SHIP_DISCATIVE_CSS = "ships-display__ship--disactive";
+const DISPLAY_COUNTER_HIDDEN = "ships-display__ship-counter--hidden";
 
 const DATA_DISPLAYED_SHIP = "data-displayed-ship";
+const SHIP_SMALL_GAME_CLASS = "ships-display__ship--small-game";
 
 export class ShipDisplay extends UI {
   constructor(
@@ -25,6 +27,7 @@ export class ShipDisplay extends UI {
 
     this.shipsArray = Object.values(this.ships);
     this.#bindToElements();
+    this.#resetShipsDisplay();
     this.numberOfAllShips = this.#countAllShips();
     this.#displayNumberOfShips();
     this.#displayColumns();
@@ -38,6 +41,10 @@ export class ShipDisplay extends UI {
     this.shipsDisplayElement = this.getElement(this.UISelectors.shipsDisplay);
   }
 
+  #resetShipsDisplay() {
+    this.shipsDisplayElement.innerHTML = "";
+  }
+
   #countAllShips() {
     const numberOfAllShips = this.shipsArray.reduce(
       (summaryNumberOfAllShips, numberOfSpecyficShips) =>
@@ -49,8 +56,25 @@ export class ShipDisplay extends UI {
   }
 
   #displayNumberOfShips() {
-    this.shipsDisplayCounterElement.innerText =
-      this.numberOfAllShips.toString();
+    this.shipsDisplayCounterElement.innerText = `You got ${this.numberOfAllShips.toString()} ships left`;
+  }
+
+  #decreseNumberOfShips() {
+    this.numberOfAllShips--;
+    this.#fadeOutInShipsNumber();
+  }
+
+  #fadeOutInShipsNumber() {
+    const refreshText = () => {
+      this.#displayNumberOfShips();
+      this.shipsDisplayCounterElement.classList.remove(DISPLAY_COUNTER_HIDDEN);
+    };
+
+    this.shipsDisplayCounterElement.classList.add(DISPLAY_COUNTER_HIDDEN);
+    this.shipsDisplayCounterElement.addEventListener(
+      "transitionend",
+      refreshText
+    );
   }
 
   #displayColumns() {
@@ -81,7 +105,6 @@ export class ShipDisplay extends UI {
     const element = document.createElement("div");
     element.classList.add(DISPLAY_COLUMN_CSS);
     element.setAttribute(`data-column-${shipTypeDestination}`, "");
-
     return element;
   }
 
@@ -98,6 +121,33 @@ export class ShipDisplay extends UI {
         }
       }
     });
+
+    this.#adjustShipsSize();
+  }
+
+  //adjust size of ship, if there is more less than 4 types of ships, it adjust size of ship so it keeps a good proportion on mobile
+  #adjustShipsSize() {
+    if (this.#getNumberOfShipTypes() <= 3) {
+      this.#addShipSmallGameClass();
+    } else {
+      this.#removeShipSmallGameClass();
+    }
+  }
+
+  #addShipSmallGameClass() {
+    const ships = this.getElements(this.UISelectors.displayedShip);
+    ships.forEach((ship) => {
+      ship.classList.add(SHIP_SMALL_GAME_CLASS);
+    });
+  }
+
+  #removeShipSmallGameClass() {
+    const ships = this.getElements(this.UISelectors.displayedShip);
+    ships.forEach((ship) => {
+      if (ship.classList.contains(SHIP_SMALL_GAME_CLASS)) {
+        ship.classList.remove(SHIP_SMALL_GAME_CLASS);
+      }
+    });
   }
 
   #createShipElement(shipSize) {
@@ -108,10 +158,6 @@ export class ShipDisplay extends UI {
     element.setAttribute(DATA_DISPLAYED_SHIP, "");
 
     return element;
-  }
-
-  decreseNumberOfShips() {
-    this.numberOfAllShips--;
   }
 
   activateShip(colNumber, shipNumber) {
@@ -133,5 +179,7 @@ export class ShipDisplay extends UI {
         break;
       }
     }
+
+    this.#decreseNumberOfShips();
   }
 }

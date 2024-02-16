@@ -1,7 +1,12 @@
+@use "../colors" as c;
+
 .steering-panel {
   position: relative;
   overflow: hidden;
   font-size: 1rem;
+  border: 10px solid c.$metal-grey;
+  border-radius: 10px;
+  box-shadow: 0 0px 20px rgba(0, 0, 0, 0.1), 0 0 30px rgba(0, 0, 0, 0.3);
 
   &__shoot-panel {
     position: absolute;
@@ -11,11 +16,11 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    top: 0;
-    z-index: 2;
+    top: -110%;
+    z-index: 1;
 
-    &--hidden {
-      top: -100%;
+    &--shown {
+      animation: metalPlateFall 1.5s forwards;
     }
   }
 
@@ -25,16 +30,75 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 1;
+    z-index: 0;
+    transition: transform 0.7s;
 
     &--hidden {
-      display: none;
+      transform: translateY(110%);
     }
   }
 
   &__button {
-    width: 150px;
-    height: 35px;
-    margin-top: 2rem;
+    width: 70%;
+    height: 25%;
+    font-size: 0.9em;
+    padding: 0.5rem 0.5rem;
+
+    &:nth-child(2) {
+      margin: 0.8rem 0;
+    }
+  }
+}
+
+@keyframes metalPlateFall {
+  0% {
+    top: -110%;
+  }
+  40% {
+    top: 0;
+  }
+  50% {
+    top: 10%;
+  }
+  60% {
+    top: 0;
+  }
+  70% {
+    top: 5%;
+  }
+  80% {
+    top: 0;
+  }
+  90% {
+    top: 2%;
+  }
+  100% {
+    top: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .steering-panel {
+    font-size: 1.3rem;
+    &__button {
+      height: 20%;
+    }
+  }
+}
+
+@media (min-width: 996px) {
+  .steering-panel {
+    &__button {
+      height: 15%;
+      font-size: 1.4em;
+
+      &:nth-child(2) {
+        margin: 30px 0;
+      }
+    }
+
+    &__placing-panel {
+      justify-content: center;
+    }
   }
 }

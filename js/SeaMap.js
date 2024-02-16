@@ -16,6 +16,7 @@ export class SeaMap extends Map {
 
     this.#generateSeaCells();
     this.setBorderValue(this.#seaCells);
+    this.#bindElements();
   }
 
   showCells() {
@@ -26,7 +27,7 @@ export class SeaMap extends Map {
     return this.#seaCells;
   }
 
-  bindElements() {
+  #bindElements() {
     this.seaMapElement = this.getElement(this.UISelectors.seaMap);
   }
 
@@ -68,6 +69,7 @@ export class SeaMap extends Map {
   }
 
   renderSeaMap() {
+    this.seaMapElement.innerHTML = "";
     const type = "[data-sea-cell]";
     this.#seaCells.flat().forEach((cell) => {
       this.seaMapElement.appendChild(cell.createElement());

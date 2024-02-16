@@ -1,13 +1,13 @@
+import { Cell } from "./Cell.js";
 import { Player } from "./Player.js";
+import { SeaCell } from "./SeaCell.js";
 import { SeaMap } from "./SeaMap.js";
 
 export class ComputerPlayer extends Player {
-  #allCells;
-  #cellsToShoot;
+  #allCells; // 2d array of all cells
+  #cellsToShoot; // cells left to shoot
   #seaMap;
-  #shotDirection;
   #forbiddenShotDirections;
-  #lastShootDirection;
 
   constructor(
     mapSize,
@@ -25,8 +25,8 @@ export class ComputerPlayer extends Player {
       numberOfTwoCellShips,
       numberOfOneCellShips
     );
-    this.shotShip = [];
-    this.#forbiddenShotDirections = [];
+    this.shotShip = []; // Cells of ship that was shot and not sunk yet
+    this.#forbiddenShotDirections = []; // numbers between 1-4
     this.#seaMap = new SeaMap(mapSize);
     this.#allCells = this.#seaMap.seaCells;
     this.#cellsToShoot = this.#allCells.flat().filter((cell) => !cell.isBorder);
@@ -39,28 +39,34 @@ export class ComputerPlayer extends Player {
   }
 
   #deployComputersShips() {
-    const shipsToPlace = Object.values(this.ships);
-    let iterator = 0; //determines numbering of ships
-    let shipNumber = 1;
-    let cellsFreeToShip = this.#allCells.flat();
+    const shipsToPlace = Object.values(this.ships); //each list elementcontains amount of each type of ship to be placed starting from biggest
+    let iterator = 0; //determining type of ship that is placed
+    let shipNumber = 1; //determining a uniqe number ship for ship that is placed
+    let cellsFreeToShip = this.#allCells.flat(); //array of avaliable cells for placing ship
 
+    /**
+     * iterate over all types(each type have different length) of ships, starting from longest one.
+     * shipsToPlace[0] contains amount of largest ships, so shipsToPlace.lenght returns size of that ship as difference of size of each type is always one. shipToPlace[1] contains amount of ships that are 1 cell smaller than shipsToPlace[0], so shipsToPlace.lenght-1 will determine 
+     length of ship as 1 lower than the las one added, and so on untill counter hits 1
+     */
     for (let shipLength = shipsToPlace.length; shipLength > 0; shipLength--) {
+      //loops to place all ships of each type
       for (
-        let numberOfSpecificShips = shipsToPlace[iterator];
+        let numberOfSpecificShips = shipsToPlace[iterator]; //sets amount of ships from specyfic type
         numberOfSpecificShips > 0;
         numberOfSpecificShips--
       ) {
-        let tempShipShape;
+        let tempShipShape; // array of cells that are possible to ship
         do {
-          const randomDirection = Math.floor(Math.random() * 4) + 1;
+          const randomDirection = Math.floor(Math.random() * 4) + 1; //gets random direction, number from 1 to 4
           tempShipShape = this.#getPossibleShipShape(
             this.#getRandomCell(cellsFreeToShip),
             shipLength,
             randomDirection
           );
-        } while (tempShipShape.length !== shipLength);
+        } while (tempShipShape.length !== shipLength); // finish loop when getPossibleShipShape returns ship with desired length
 
-        const shipShape = tempShipShape;
+        const shipShape = tempShipShape; // sets shipShape for array that contains Cell instances possible to ship
         const impossibleToShipCells = this.getImpossibleToShipCells(
           this.changeNameOfKeysForValues(shipShape)
         );
@@ -72,29 +78,41 @@ export class ComputerPlayer extends Player {
           shipNumber
         );
 
-        shipNumber++;
+        shipNumber++; // after adding whole ship, creates next uniqe number for next ship
       }
-      iterator++;
+      iterator++; // type set for 1 cell smaller
     }
   }
 
-  #getPossibleShipShape(cell, length = 3, direction) {
+  /**
+   *Method returns an array of cells that are possible to place ship in, array length  is same as length parameter if ship can be placed.
+   Any shorter array than parameter length, means that desired ship shape collides with something
+   * @param {SeaCell} cell // starting cell
+   * @param {number} length //  length of ship
+   * @param {number} direction // 1-top, 2-right, 3-down, 4 left
+   * @returns {array}
+   */
+  #getPossibleShipShape(cell, length, direction) {
     let possibleShape = [];
 
     switch (direction) {
       case 1:
+        //checks if there is enough of cells in desired direction and check if starting cell is possible to ship
         if (cell.x <= this.mapSize - (length - 1) && cell.PossibleToShip) {
           possibleShape = [];
+          //iterates through all desired cells and checks if thre is no collision with other ships or borders
           for (let i = 0; i < length; i++) {
             const cellToCheck = this.#allCells[cell.x + i][cell.y];
             if (cellToCheck.PossibleToShip && !cellToCheck.isBorder) {
-              possibleShape.push(cellToCheck);
+              possibleShape.push(cellToCheck); //adds possible
             }
           }
         } else {
           possibleShape = [];
         }
         break;
+
+      // checks rest of directions with similiar logic
       case 2:
         if (cell.y <= this.mapSize - (length - 1) && cell.PossibleToShip) {
           possibleShape = [];
@@ -108,6 +126,7 @@ export class ComputerPlayer extends Player {
           possibleShape = [];
         }
         break;
+
       case 3:
         if (cell.x >= 1 + (length - 1) && cell.PossibleToShip) {
           possibleShape = [];
@@ -121,6 +140,7 @@ export class ComputerPlayer extends Player {
           possibleShape = [];
         }
         break;
+
       case 4:
         if (cell.y >= 1 + (length - 1) && cell.PossibleToShip) {
           possibleShape = [];
@@ -136,15 +156,25 @@ export class ComputerPlayer extends Player {
         break;
     }
 
-    return possibleShape;
+    return possibleShape; // returns array of possible to ship cells
   }
 
+  /**
+   * returns random cell from array of cells
+   * @param {array} cells array of cells
+   * @returns {SeaCell}
+   */
   #getRandomCell(cells) {
     const randomIndex = Math.floor(Math.random() * cells.length);
     return cells[randomIndex];
   }
 
+  /**
+   * returns shoot target
+   * @returns {SeaCell}
+   */
   makeShoot() {
+    //if no ship hit or shit was sunk in last shot, keep hunt algorithm, if ship was hit, start destroy algorithm
     if (this.shotShip.length === 0) {
       return this.#hunt();
     } else {
@@ -152,6 +182,10 @@ export class ComputerPlayer extends Player {
     }
   }
 
+  /**
+   * Returns random cell from cells left to shoot, and deletes this cell from cells left to shoot
+   * @returns {SeaCell}
+   */
   #hunt() {
     const randomCellToShootIndex = Math.floor(
       Math.random() * this.#cellsToShoot.length
@@ -162,42 +196,53 @@ export class ComputerPlayer extends Player {
     return randomCellToShoot;
   }
 
+  /**
+   * Algoritm to get rest of cells that are included in ship that alredy was hit, returns single cell
+   * @returns {SeaCell}
+   */
   #destroy() {
-    /**if there is only once cell inside shotShip(ship that were hit), get a random number between 1-4 to decide
-     * which direction next shot will be made, eliminate possibilities to shot in directions where ship is
-     * toutching border cells.   Numbers meaning 1 - bottom, 2 right, 3 top , 4 left*/
-
     if (this.shotShip.length === 1) {
       return this.#destroyAnotherCell();
     } else if (this.shotShip.length > 1) {
-      console.log("startuje destroy");
       this.#findDirectionsToShoot();
       return this.#destroyAnotherCell();
     }
   }
 
+  /**
+   * Returns next possible to be ship cell
+   * @returns {SeaCell}
+   */
   #destroyAnotherCell() {
-    let cellX = this.shotShip[0].x;
+    let cellX = this.shotShip[0].x; //
     let cellY = this.shotShip[0].y;
     let randomDirection = this.#getRandomDirection();
     let nextShootCoordinates = {};
 
-    while (this.#forbiddenShotDirections.includes(randomDirection)) {
-      randomDirection = this.#getRandomDirection();
-    }
+    randomDirection = this.#validateRandomDirection(
+      randomDirection,
+      cellX,
+      cellY
+    );
 
-    if (cellX === 1 && randomDirection === 3) {
-      randomDirection = this.#getRandomDirection();
-    }
-    if (cellX === this.mapSize && randomDirection === 1) {
-      randomDirection = this.#getRandomDirection();
-    }
-    if (cellY === 1 && randomDirection === 4) {
-      randomDirection = this.#getRandomDirection();
-    }
-    if (cellX === this.mapSize && randomDirection === 2) {
-      randomDirection = this.#getRandomDirection();
-    }
+    // // while random directions is forbidden, get another random direction
+    // while (this.#forbiddenShotDirections.includes(randomDirection)) {
+    //   randomDirection = this.#getRandomDirection();
+    // }
+
+    // //prevents from choosing border cell as target
+    // if (cellX === 1 && randomDirection === 3) {
+    //   randomDirection = this.#getRandomDirection();
+    // }
+    // if (cellX === this.mapSize && randomDirection === 1) {
+    //   randomDirection = this.#getRandomDirection();
+    // }
+    // if (cellY === 1 && randomDirection === 4) {
+    //   randomDirection = this.#getRandomDirection();
+    // }
+    // if (cellX === this.mapSize && randomDirection === 2) {
+    //   randomDirection = this.#getRandomDirection();
+    // }
 
     if (randomDirection === 1) {
       cellX = this.#getShipCellWithMaxValue("x");
@@ -233,11 +278,46 @@ export class ComputerPlayer extends Player {
 
     this.lastShootDirection = randomDirection;
     const nextShoot = this.#getCellFromCellsToShoot(nextShootCoordinates);
+
     if (nextShoot === null) {
       return this.#destroyAnotherCell();
     }
 
+    if (
+      !this.#cellsToShoot.some(
+        (cell) => cell.x === nextShoot.x && cell.y === nextShoot.y
+      )
+    ) {
+      return this.#destroyAnotherCell();
+    }
+
+    this.#eliminateCellToShoot(nextShoot);
     return nextShoot;
+  }
+
+  #validateRandomDirection(randomDirection, cellX, cellY) {
+    let newDirection;
+    newDirection = randomDirection;
+    // while random directions is forbidden, get another random direction
+    while (this.#forbiddenShotDirections.includes(newDirection)) {
+      newDirection = this.#getRandomDirection();
+    }
+
+    //prevents from choosing border cell as target
+    if (cellX === 1 && newDirection === 3) {
+      newDirection = this.#getRandomDirection();
+    }
+    if (cellX === this.mapSize && newDirection === 1) {
+      newDirection = this.#getRandomDirection();
+    }
+    if (cellY === 1 && newDirection === 4) {
+      newDirection = this.#getRandomDirection();
+    }
+    if (cellX === this.mapSize && newDirection === 2) {
+      newDirection = this.#getRandomDirection();
+    }
+
+    return newDirection;
   }
 
   #getRandomDirection() {
@@ -248,6 +328,13 @@ export class ComputerPlayer extends Player {
     return (
       this.#cellsToShoot.find((cell) => cell.x === x && cell.y === y) || null
     );
+  }
+
+  #eliminateCellToShoot(cell) {
+    const newCellsToShoot = this.#cellsToShoot.filter(
+      (cellToShoot) => !(cellToShoot.x === cell.x && cellToShoot.y === cell.y)
+    );
+    this.#cellsToShoot = newCellsToShoot;
   }
 
   #getShipCellWithMinValue(value) {
@@ -288,7 +375,6 @@ export class ComputerPlayer extends Player {
     const restOfShotShip = this.shotShip.slice(1);
     if (
       restOfShotShip.some(({ x }) => {
-        console.log(`to jest x ${x}`);
         return x === firstCellX;
       })
     ) {
@@ -317,8 +403,6 @@ export class ComputerPlayer extends Player {
     const shotShipCoordinates = this.changeNameOfKeysForValues(shotShip);
     const impossibleToShipCells =
       this.getImpossibleToShipCells(shotShipCoordinates);
-    console.log(`shot ship ${shotShip.x}${shotShip.y}`);
-    console.log(impossibleToShipCells);
     const newCellsToShoot = this.#cellsToShoot.filter((cellToShot) => {
       return !impossibleToShipCells.some((impossibleCell) => {
         return (

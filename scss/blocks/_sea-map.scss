@@ -1,12 +1,29 @@
+@use "../colors" as c;
+
 .sea-map {
   display: grid;
-  background-color: green;
-  border: 1px solid black;
+  background-color: c.$main-black;
+  border: 20px solid c.$metal-grey;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1), 0 0 30px rgba(0, 0, 0, 0.3);
+
+  /*border of sea map has to have same size as positioning of after pseudoel */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 20px 20px;
+    background-color: rgba(0, 0, 0, 1);
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity 1s;
+    pointer-events: none;
+  }
 
   &__sea-cell {
     width: auto;
     height: auto;
     background-color: transparent;
-    border: 1px solid black;
+    border: 1px solid c.$main-green;
+    transition: background-color 0.2s;
   }
 }

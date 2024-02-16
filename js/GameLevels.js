@@ -1,6 +1,11 @@
 /**
- * For proper work of ship display of players ships there cant be a 0 ships that are shorter than a biggest one taht is set up,
- * for example (three = 1 two = 0  one = 1)/wrong
+ * There is possibility to change levels, but, a setup is limited to 5 types of ship, if there is no need for having one of types
+ * set numberOf"ship-type" on  0.
+ * If you set up too many ships, so there is possibility to 'selfblock', game may crash because
+ * of computer player may block himself.
+ * There may be also some visual issues with ships display screen which is representing active and disactive ships of player.
+ * Game is styled for 3 default leves, logic supose to work with all possible setups, but from visual side, there must be applied changes
+ * for specyfic level and window size in case of overflowing ships representation
  */
 export const gameLevels = {
   normal: {
@@ -31,11 +36,11 @@ export const gameLevels = {
   },
 
   test: {
-    mapSize: 3,
+    mapSize: 4,
     numberOfFiveCellShips: 0,
-    numberOfFourCellShips: 0,
+    numberOfFourCellShips: 1,
     numberOfThreeCellShips: 0,
     numberOfTwoCellShips: 0,
-    numberOfOneCellShips: 3,
+    numberOfOneCellShips: 0,
   },
 };
