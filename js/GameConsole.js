@@ -1,5 +1,8 @@
 import { UI } from "./UI.js";
 
+/**
+ * Class made for handling displaing messeges in game terminal
+ */
 export class GameConsole extends UI {
   constructor() {
     super();
@@ -11,6 +14,12 @@ export class GameConsole extends UI {
     this.gameConsoleElement = this.getElement(this.UISelectors.gameConsole);
   }
 
+  /**
+   * Displays letter after letter a text passed in argument.
+   * For typing whitespace use "-"
+   * @param {string} message
+   * @returns
+   */
   sendConsoleMsg(message) {
     this.gameConsoleElement.innerHTML = "";
 
@@ -18,8 +27,10 @@ export class GameConsole extends UI {
       const text = message;
       let index = 0;
 
+      // Displays each next letter of text after 25 miliseconds
       const typeNextCharacter = () => {
         if (index < text.length) {
+          // If letter is "-" turn it to whitespace
           if (text.charAt(index).match("-")) {
             const spanElement = document.createElement("span");
             spanElement.innerHTML = "&nbsp;";
@@ -30,7 +41,7 @@ export class GameConsole extends UI {
           index++;
           setTimeout(typeNextCharacter, 25);
         } else {
-          // Wait for an additional second (1000 milliseconds) before resolving
+          // Wait for 1100 miliseconds before resolving
           setTimeout(resolve, 1100);
         }
       };

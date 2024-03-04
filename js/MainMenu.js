@@ -51,10 +51,16 @@ export class MainMenu extends UI {
     });
   }
 
+  /**
+   * Show level select in main menu.
+   */
   #showSelectScreen() {
     this.toggleHideElement(this.selectLevelElement, this.startPageElement);
   }
 
+  /**
+   * Hide level select in main menu.
+   */
   hideSelectScreen() {
     this.toggleHideElement(this.startPageElement, this.selectLevelElement);
   }

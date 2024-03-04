@@ -1,15 +1,16 @@
 import { Cell } from "./Cell.js";
 
-export const DATA_SEA_CELL = "data-sea-cell";
-
-const SEA_MAP_CELL_CSS = "sea-map__sea-cell";
-
 export class SeaCell extends Cell {
   #shipNumber;
   #isPossibleToShip;
   #isShot;
   #isHit;
 
+  /**
+   *
+   * @param {number} x
+   * @param {number} y
+   */
   constructor(x, y) {
     super(x, y);
     this.#shipNumber = 0;
@@ -22,6 +23,8 @@ export class SeaCell extends Cell {
     this.#isPossibleToShip = value;
   }
 
+  /**
+   */
   set _shipNumber(number) {
     this.#shipNumber = number;
     if (this.#isPossibleToShip || !this.isBorder) {
@@ -57,10 +60,14 @@ export class SeaCell extends Cell {
     return this.#isHit;
   }
 
+  /**
+   * create HTMLElement reporesentatnion  of seaCell
+   * @returns {HTMLElement}
+   */
   createElement() {
     const element = document.createElement("div");
-    element.classList.add(SEA_MAP_CELL_CSS);
-    element.setAttribute(DATA_SEA_CELL, "");
+    element.classList.add(this.cssClasses.seaMapCell);
+    element.setAttribute("data-sea-cell", "");
     element.setAttribute("data-x", this.x);
     element.setAttribute("data-y", this.y);
     element.setAttribute("data-is-border", this.isBorder);

@@ -1,19 +1,13 @@
 import { Cell } from "./Cell.js";
 
-export const DATA_SHOOT_CELL = "data-shoot-cell";
-
-const SHOOT_MAP_CELL_CSS = "shoot-map__shoot-cell";
-
 export class ShootCell extends Cell {
   #isShot;
   #isHit;
-  #isMissed;
 
   constructor(x, y) {
     super(x, y);
     this.#isShot = false;
     this.#isHit = false;
-    this.#isMissed = false;
   }
 
   set _isShot(value) {
@@ -32,10 +26,14 @@ export class ShootCell extends Cell {
     return this.#isHit;
   }
 
+  /**
+   * creates HTML representation of shootMapCell
+   * @returns {HTMLElement}
+   */
   createElement() {
     const element = document.createElement("div");
-    element.classList.add(SHOOT_MAP_CELL_CSS);
-    element.setAttribute(DATA_SHOOT_CELL, "");
+    element.classList.add(this.cssClasses.shootMapCell);
+    element.setAttribute("data-shoot-cell", "");
     element.setAttribute("data-x", this.x);
     element.setAttribute("data-y", this.y);
     element.setAttribute("data-is-border", this.isBorder);

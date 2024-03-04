@@ -3,23 +3,25 @@ import { SeaMap } from "./SeaMap.js";
 import { ShootMap } from "./ShootMap.js";
 import { ShipDisplay } from "./ShipDisplay.js";
 import { GameConsole } from "./GameConsole.js";
-import { DATA_SEA_CELL } from "./SeaCell.js";
-
-export const SHIP_CSS = "ship";
-export const SHOOT_TARGET_CSS = "shoot-target";
-const SHOOT_TARGET_HOVER_CSS = "shoot-target-hover";
-export const HIT_CSS = "hit";
-const BLINK_CSS = "blink";
-const DECLINE_BLINK_CSS = "blink-red";
+import { SeaCell } from "./SeaCell.js";
 
 export class HumanPlayer extends Player {
-  #lastShipPlacement;
-  #isLastPlacePossibleToShip;
-  #lastShootPlacement;
+  #lastShipPlacement; // flag made for controlling displaying and replacing ship
+  #isLastPlacePossibleToShip; // flag used in ship deploying
+  #lastShootPlacement; // flag used for shooting
 
   #playerSeaMap;
   #playerShootMap;
 
+  /**
+   *
+   * @param {number} mapSize
+   * @param {number} numberOfFiveCellShips
+   * @param {number} numberOfFourCellShips
+   * @param {number} numberOfThreeCellShips
+   * @param {number} numberOfTwoCellShips
+   * @param {number} numberOfOneCellShips
+   */
   constructor(
     mapSize,
     numberOfFiveCellShips,
@@ -40,7 +42,6 @@ export class HumanPlayer extends Player {
     this.playerConsole = new GameConsole();
     this.#playerSeaMap = new SeaMap(mapSize);
     this.#playerShootMap = new ShootMap(mapSize);
-    this.#lastShootPlacement = null;
     this.playerShipsDisplay = new ShipDisplay(
       numberOfFiveCellShips,
       numberOfFourCellShips,
@@ -54,6 +55,7 @@ export class HumanPlayer extends Player {
     this.#isLastPlacePossibleToShip = false;
 
     //variables and flags for making shot
+    this.#lastShootPlacement = null;
 
     this.#bindElemnts();
     this.#renderPlayersTable();
@@ -77,6 +79,9 @@ export class HumanPlayer extends Player {
     this.quitButtonElement = this.getElement(this.UISelectors.quitButton);
   }
 
+  /**
+   * renders map and
+   */
   #renderPlayersTable() {
     this.#playerShootMap.renderShootMap();
     this.#playerSeaMap.renderSeaMap();
@@ -90,7 +95,7 @@ export class HumanPlayer extends Player {
 
   /*Asynchronic function which handles whole process of adding ships.
   It iterates through array "shipsToPlace" which contains values of all ship types, index of 
-  "shipsToPlace" also describes how many cells ship that is placed at time will have.
+  "shipsToPlace" also describes how many cells ship that is placed at this moment will have.
   Loop always starts with biggest ships and it goes to smallest one.
   Another loop inside previous one is determines how many ships of specyfic size will be placed, 
   and handles this proces for each of the ships. So "numberOfSpecificShips" means how many ships
@@ -98,7 +103,7 @@ export class HumanPlayer extends Player {
   */
   async deployPlayersShips() {
     //select all sea map Cells
-    const allSeaCellsSelector = `[${DATA_SEA_CELL}][data-is-border="false"]`;
+    const allSeaCellsSelector = `[data-sea-cell][data-is-border="false"]`;
     const allSeaCellsElements = this.getElements(allSeaCellsSelector);
 
     const shipsToPlace = Object.values(this.ships);
@@ -123,6 +128,7 @@ export class HumanPlayer extends Player {
           direction++;
         };
 
+        // handle functions made for easy add and delete event listeners to buttons that are used in each loop
         const handleCellMouseOver = (event) => {
           const cell = event.currentTarget;
           this.#showShipShape(cell, shipLength, direction % 4);
@@ -193,8 +199,11 @@ export class HumanPlayer extends Player {
     }
   }
 
+  /**
+   * Deletes shape of placed but not confirmed ship, enables map and proper buttons for clicking
+   */
   #changeShip() {
-    this.#deleteCssClassFromShips(this.#lastShipPlacement);
+    this.#deleteShipClassFromShip(this.#lastShipPlacement);
     this.placeButtonElement.disabled = true;
     this.changeButtonElement.disabled = true;
     this.rotateButtonElement.disabled = false;
@@ -206,66 +215,23 @@ export class HumanPlayer extends Player {
       const cellX = parseInt(cell.dataset.x, 10);
       const cellY = parseInt(cell.dataset.y, 10);
       this.toggleNonClickableElement(this.#playerSeaMap.seaMapElement); //turning off possibility to place another ship untill user save ship position or decides to change it by clicking correct button
-      this.changeButtonElement.disabled = false; // enables possibility to change place of ship
-      this.placeButtonElement.disabled = false; //enables possibility to click button which saves ship destination
+      this.changeButtonElement.disabled = false;
+      this.placeButtonElement.disabled = false;
       this.rotateButtonElement.disabled = true;
 
+      // depending on direction and length of ship, gets all cells that ship will be placed on, and sets a class os ship for all of them
       switch (direction) {
         case 1:
-          this.#lastShipPlacement = [];
-          for (let i = 0; i < length; i++) {
-            const shipPiece = this.getElement(
-              `[data-x="${cellX + i}"][data-y="${cellY}"]`
-            );
-            shipPiece.classList.add(SHIP_CSS);
-            const cellCoordinates = {
-              XValue: shipPiece.getAttribute("data-x"),
-              YValue: shipPiece.getAttribute("data-y"),
-            };
-            this.#lastShipPlacement.push(cellCoordinates);
-          }
+          this.#handleShipPlacement(length, cellX, cellY, false, "x");
           break;
         case 2:
-          this.#lastShipPlacement = [];
-          for (let i = 0; i < length; i++) {
-            const shipPiece = this.getElement(
-              `[data-x="${cellX}"][data-y="${cellY + i}"]`
-            );
-            shipPiece.classList.add(SHIP_CSS);
-            const cellCoordinates = {
-              XValue: shipPiece.getAttribute("data-x"),
-              YValue: shipPiece.getAttribute("data-y"),
-            };
-            this.#lastShipPlacement.push(cellCoordinates);
-          }
+          this.#handleShipPlacement(length, cellX, cellY, false, "y");
           break;
         case 3:
-          this.#lastShipPlacement = [];
-          for (let i = 0; i < length; i++) {
-            const shipPiece = this.getElement(
-              `[data-x="${cellX - i}"][data-y="${cellY}"]`
-            );
-            shipPiece.classList.add(SHIP_CSS);
-            const cellCoordinates = {
-              XValue: shipPiece.getAttribute("data-x"),
-              YValue: shipPiece.getAttribute("data-y"),
-            };
-            this.#lastShipPlacement.push(cellCoordinates);
-          }
+          this.#handleShipPlacement(length, cellX, cellY, true, "x");
           break;
         case 0:
-          this.#lastShipPlacement = [];
-          for (let i = 0; i < length; i++) {
-            const shipPiece = this.getElement(
-              `[data-x="${cellX}"][data-y="${cellY - i}"]`
-            );
-            shipPiece.classList.add(SHIP_CSS);
-            const cellCoordinates = {
-              XValue: shipPiece.getAttribute("data-x"),
-              YValue: shipPiece.getAttribute("data-y"),
-            };
-            this.#lastShipPlacement.push(cellCoordinates);
-          }
+          this.#handleShipPlacement(length, cellX, cellY, true, "y");
           break;
       }
     } else {
@@ -273,9 +239,62 @@ export class HumanPlayer extends Player {
     }
   }
 
+  /**
+   * Handles temporary placing ship on sea map. depending on length of ship, it's coordinates adding ship in direction,
+   which is defined by boolean value isMinus(if true top/left, if false right/bottom) and changedValue which is string that takes "x"(top/bottom) or "y"(right/left). 
+   * @param {number} length 
+   * @param {number} cellX 
+   * @param {number} cellY 
+   * @param {boolean} isMinus 
+   * @param {string} changedValue 
+   */
+  #handleShipPlacement(length, cellX, cellY, isMinus, changedValue) {
+    this.#lastShipPlacement = [];
+    for (let i = 0; i < length; i++) {
+      const shipPiece = this.getElement(
+        this.#generateSelector(cellX, cellY, i, isMinus, changedValue)
+      );
+      shipPiece.classList.add(this.cssClasses.ship);
+      const cellCoordinates = {
+        XValue: shipPiece.getAttribute("data-x"),
+        YValue: shipPiece.getAttribute("data-y"),
+      };
+      this.#lastShipPlacement.push(cellCoordinates);
+    }
+  }
+
+  #generateSelector(cellX, cellY, i, isMinus, changedValue) {
+    if (isMinus) {
+      return this.#generateMinusSelectors(cellX, cellY, i, changedValue);
+    } else {
+      return this.#generatePlusSelectors(cellX, cellY, i, changedValue);
+    }
+  }
+
+  #generateMinusSelectors(cellX, cellY, i, changedValue) {
+    if (changedValue === "x") {
+      return `[data-x="${cellX - i}"][data-y="${cellY}"]`;
+    } else if (changedValue === "y") {
+      return `[data-x="${cellX}"][data-y="${cellY - i}"]`;
+    }
+  }
+
+  #generatePlusSelectors(cellX, cellY, i, changedValue) {
+    if (changedValue === "x") {
+      return `[data-x="${cellX + i}"][data-y="${cellY}"]`;
+    } else if (changedValue === "y") {
+      return `[data-x="${cellX}"][data-y="${cellY + i}"]`;
+    }
+  }
+
+  /**
+   * Saves ship placement
+   * @param {object} cellsCoordiates
+   * @param {number} shipNumber
+   */
   #addShip(cellsCoordiates, shipNumber) {
     this.#playerSeaMap.setShipCells(cellsCoordiates, shipNumber);
-    this.#deleteCssClassFromShips(cellsCoordiates); //deletes a visual representation of ship
+    this.#deleteShipClassFromShip(cellsCoordiates); //deletes a visual representation of ship
 
     // transforms keys names to keep equality of names
     const impossibleToShipCells = this.changeNameOfKeysForValues(
@@ -286,7 +305,7 @@ export class HumanPlayer extends Player {
     this.toggleNonClickableElement(this.#playerSeaMap.seaMapElement); // relese map for another ship placement
   }
 
-  #deleteCssClassFromShips(cellsCoordiates) {
+  #deleteShipClassFromShip(cellsCoordiates) {
     const shipsToDelete = [];
     cellsCoordiates.forEach(({ XValue, YValue }) => {
       const selector = `[data-x="${XValue}"][data-y="${YValue}"]`;
@@ -295,11 +314,18 @@ export class HumanPlayer extends Player {
     });
 
     shipsToDelete.forEach((ship) => {
-      ship.classList.remove(SHIP_CSS);
+      ship.classList.remove(this.cssClasses.ship);
     });
   }
 
-  #showShipShape(cell, length = 3, direction) {
+  /**
+   * Function handles hovering cell on sea map, depending on how big ship is, on which cell player hovers, and which direction is on.
+   * If one of cells that are in range of ship that is displayed at this moment, ship display collapses to range of that cell and turns displayed ship to red color.
+   * @param {SeaCell} cell
+   * @param {number} length
+   * @param {number} direction 1 = bottom, 2 = right, 3 = top, 4 = left;
+   */
+  #showShipShape(cell, length, direction) {
     const cellX = parseInt(cell.dataset.x, 10);
     const cellY = parseInt(cell.dataset.y, 10);
     let shipShape;
@@ -309,11 +335,10 @@ export class HumanPlayer extends Player {
       `[data-x="${cellX}"][data-y="${cellY}"]`
     );
 
-    //shows user that targeted cell is impossible to ship
     if (targetedCell.dataset.isPossibleToShip == "false") {
-      targetedCell.classList.toggle(DECLINE_BLINK_CSS);
+      targetedCell.classList.toggle(this.cssClasses.declineBlink);
     }
-
+    //dependind on direction and length, gets SeaCell elements and pushes it to ShipShape arrays
     switch (direction) {
       case 1:
         shipShape = [];
@@ -325,30 +350,7 @@ export class HumanPlayer extends Player {
           shipShape.push(shipPiece);
         }
 
-        for (let i = 0; i < shipShape.length; i++) {
-          const cell = shipShape[i];
-
-          if (
-            cell.dataset.isBorder == "false" &&
-            cell.dataset.isPossibleToShip == "true"
-          ) {
-            possibleShape.push(cell);
-            this.#isLastPlacePossibleToShip = true;
-          } else {
-            this.#isLastPlacePossibleToShip = false;
-            break;
-          }
-        }
-
-        if (this.#isLastPlacePossibleToShip === false) {
-          possibleShape.forEach((cell) => {
-            cell.classList.toggle(DECLINE_BLINK_CSS);
-          });
-        } else {
-          possibleShape.forEach((cell) => {
-            cell.classList.toggle(BLINK_CSS);
-          });
-        }
+        this.#handleShipShapeDisplay(shipShape, possibleShape);
 
         break;
       case 2:
@@ -361,30 +363,7 @@ export class HumanPlayer extends Player {
           shipShape.push(shipPiece);
         }
 
-        for (let i = 0; i < shipShape.length; i++) {
-          const cell = shipShape[i];
-
-          if (
-            cell.dataset.isBorder == "false" &&
-            cell.dataset.isPossibleToShip == "true"
-          ) {
-            possibleShape.push(cell);
-            this.#isLastPlacePossibleToShip = true;
-          } else {
-            this.#isLastPlacePossibleToShip = false;
-            break;
-          }
-        }
-
-        if (this.#isLastPlacePossibleToShip === false) {
-          possibleShape.forEach((cell) => {
-            cell.classList.toggle(DECLINE_BLINK_CSS);
-          });
-        } else {
-          possibleShape.forEach((cell) => {
-            cell.classList.toggle(BLINK_CSS);
-          });
-        }
+        this.#handleShipShapeDisplay(shipShape, possibleShape);
 
         break;
       case 3:
@@ -397,30 +376,7 @@ export class HumanPlayer extends Player {
           shipShape.push(shipPiece);
         }
 
-        for (let i = 0; i < shipShape.length; i++) {
-          const cell = shipShape[i];
-
-          if (
-            cell.dataset.isBorder == "false" &&
-            cell.dataset.isPossibleToShip == "true"
-          ) {
-            possibleShape.push(cell);
-            this.#isLastPlacePossibleToShip = true;
-          } else {
-            this.#isLastPlacePossibleToShip = false;
-            break;
-          }
-        }
-
-        if (this.#isLastPlacePossibleToShip === false) {
-          possibleShape.forEach((cell) => {
-            cell.classList.toggle(DECLINE_BLINK_CSS);
-          });
-        } else {
-          possibleShape.forEach((cell) => {
-            cell.classList.toggle(BLINK_CSS);
-          });
-        }
+        this.#handleShipShapeDisplay(shipShape, possibleShape);
 
         break;
       case 0:
@@ -434,41 +390,63 @@ export class HumanPlayer extends Player {
           shipShape.push(shipPiece);
         }
 
-        for (let i = 0; i < shipShape.length; i++) {
-          const cell = shipShape[i];
-
-          if (
-            cell.dataset.isBorder == "false" &&
-            cell.dataset.isPossibleToShip == "true"
-          ) {
-            possibleShape.push(cell);
-            this.#isLastPlacePossibleToShip = true;
-          } else {
-            this.#isLastPlacePossibleToShip = false;
-            break;
-          }
-        }
-
-        if (this.#isLastPlacePossibleToShip === false) {
-          possibleShape.forEach((cell) => {
-            cell.classList.toggle(DECLINE_BLINK_CSS);
-          });
-        } else {
-          possibleShape.forEach((cell) => {
-            cell.classList.toggle(BLINK_CSS);
-          });
-        }
+        this.#handleShipShapeDisplay(shipShape, possibleShape);
 
         break;
     }
   }
 
+  /**
+   * Checks each of cell of shipShape array and if specyfic cell is not a border and do not colide with other ships. If so , pushes this cell to array passed as 2nd argument.
+   * adds proper class (cells color) to ship shape, depends if ship is possible to place or not
+   * @param {Array} shipShape
+   * @param {Array} possibleShape
+   */
+  #handleShipShapeDisplay(shipShape, possibleShape) {
+    for (let i = 0; i < shipShape.length; i++) {
+      const cell = shipShape[i];
+      if (
+        cell.dataset.isBorder == "false" &&
+        cell.dataset.isPossibleToShip == "true"
+      ) {
+        possibleShape.push(cell);
+        this.#isLastPlacePossibleToShip = true;
+      } else {
+        this.#isLastPlacePossibleToShip = false;
+        break;
+      }
+    }
+
+    this.#addProperShipShapeClass(possibleShape);
+  }
+
+  /**
+   * Sets proper css class depending if ship shape shows ship that is possible to place or not
+   * @param {Array} possibleShape
+   */
+  #addProperShipShapeClass(possibleShape) {
+    if (this.#isLastPlacePossibleToShip === false) {
+      possibleShape.forEach((cell) => {
+        cell.classList.toggle(this.cssClasses.declineBlink);
+      });
+    } else {
+      possibleShape.forEach((cell) => {
+        cell.classList.toggle(this.cssClasses.blink);
+      });
+    }
+  }
+
+  /**
+   * Method handles selecting cell to shoot,
+   * @returns {object}
+   */
   async makeShoot() {
     let shoot = null;
     const allShootCellsSelector = `[data-shoot-cell][data-is-border="false"]`;
     const allShootCellsElements = this.getElements(allShootCellsSelector);
 
-    this.shootButtonElement.disabled = true;
+    this.shootButtonElement.disabled = true; //disable shoot button before player select any cell
+
     const handleCellMouseOver = (event) => {
       const cell = event.currentTarget;
       this.#showTargetedShootCell(cell);
@@ -514,6 +492,7 @@ export class HumanPlayer extends Player {
     this.shootButtonElement.addEventListener("click", handleShootButtonClick);
     this.quitButtonElement.addEventListener("click", removeEventListeners);
 
+    //resolve promise after shoot button was clicked
     await new Promise((resolve) => {
       this.shootButtonElement.addEventListener("click", () => resolve());
     });
@@ -521,43 +500,56 @@ export class HumanPlayer extends Player {
     return shoot;
   }
 
+  /**
+   * Highlights cell passed in parameter
+   * @param {Object} cell
+   */
   #showTargetedShootCell(cell) {
-    cell.classList.add(SHOOT_TARGET_HOVER_CSS);
+    cell.classList.add(this.cssClasses.shootTargetHover);
   }
 
+  /**
+   * hides higlight of cell passed in parameter
+   * @param {Object} cell
+   */
   #hideTargetedShootCell(cell) {
-    cell.classList.remove(SHOOT_TARGET_HOVER_CSS);
+    cell.classList.remove(this.cssClasses.shootTargetHover);
   }
 
+  /**
+   * Handles targeting cell, sets it as temporary target untill player accepts it by clicking shoot button.
+   * @param {Object} cell
+   */
   #setShootingTarget(cell) {
     const target = {
       x: cell.getAttribute("data-x"),
       y: cell.getAttribute("data-y"),
     };
 
-    this.shootButtonElement.disabled = false;
+    this.shootButtonElement.disabled = false; //enable shoot button after
 
+    // removes target class from last choosen cell but only if there was any other cell choosen as target before.
     if (this.#lastShootPlacement != null) {
       const lastShootTarget = this.getElement(
         `[data-shoot-cell][data-x="${this.#lastShootPlacement.x}"][data-y="${
           this.#lastShootPlacement.y
         }"]`
       );
-      lastShootTarget.classList.remove(SHOOT_TARGET_CSS);
+      lastShootTarget.classList.remove(this.cssClasses.shootTarget);
     }
 
-    cell.classList.add(SHOOT_TARGET_CSS);
-    this.#lastShootPlacement = target;
+    cell.classList.add(this.cssClasses.shootTarget);
+    this.#lastShootPlacement = target; // sets target as LastShootPlacement for future accepting or changing target
   }
 
+  /**
+   * Accepts shoot choosen by player, returns targeted cell
+   * @returns {Object}
+   */
   #acceptShoot() {
     const shoot = {
       x: this.#lastShootPlacement.x,
       y: this.#lastShootPlacement.y,
-    };
-    const shootValues = {
-      XValue: this.#lastShootPlacement.x,
-      YValue: this.#lastShootPlacement.y,
     };
 
     this.shootButtonElement.disabled = true;
@@ -567,11 +559,10 @@ export class HumanPlayer extends Player {
         this.#lastShootPlacement.y
       }"]`
     );
-    this.#playerShootMap.setShootCell(shootValues);
-    lastShootTarget.classList.remove(SHOOT_TARGET_CSS);
+    this.#playerShootMap.setShootCell(shoot);
+    lastShootTarget.classList.remove(this.cssClasses.shootTarget);
     this.#playerShootMap.refreshShootMap();
     this.#lastShootPlacement = null;
-    this.#playerShootMap.showCells();
     return shoot;
   }
 }

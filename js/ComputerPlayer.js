@@ -1,14 +1,25 @@
-import { Cell } from "./Cell.js";
 import { Player } from "./Player.js";
 import { SeaCell } from "./SeaCell.js";
 import { SeaMap } from "./SeaMap.js";
 
+/**
+ * Class handles computer Player ships deploying and shooting enemy targets on way to win game
+ */
 export class ComputerPlayer extends Player {
   #allCells; // 2d array of all cells
   #cellsToShoot; // cells left to shoot
   #seaMap;
-  #forbiddenShotDirections;
+  #forbiddenShotDirections; // 1-bottom, 2-right, 3-top, 4 left
 
+  /**
+   *
+   * @param {number} mapSize
+   * @param {number} numberOfFiveCellShips
+   * @param {number} numberOfFourCellShips
+   * @param {number} numberOfThreeCellShips
+   * @param {number} numberOfTwoCellShips
+   * @param {number} numberOfOneCellShips
+   */
   constructor(
     mapSize,
     numberOfFiveCellShips,
@@ -25,7 +36,7 @@ export class ComputerPlayer extends Player {
       numberOfTwoCellShips,
       numberOfOneCellShips
     );
-    this.shotShip = []; // Cells of ship that was shot and not sunk yet
+    this.shotShip = []; // Cells of enemy ship that was shot and not sunk yet
     this.#forbiddenShotDirections = []; // numbers between 1-4
     this.#seaMap = new SeaMap(mapSize);
     this.#allCells = this.#seaMap.seaCells;
@@ -39,7 +50,7 @@ export class ComputerPlayer extends Player {
   }
 
   #deployComputersShips() {
-    const shipsToPlace = Object.values(this.ships); //each list elementcontains amount of each type of ship to be placed starting from biggest
+    const shipsToPlace = Object.values(this.ships); //each list element contains amount of each type of ship to be placed starting from biggest
     let iterator = 0; //determining type of ship that is placed
     let shipNumber = 1; //determining a uniqe number ship for ship that is placed
     let cellsFreeToShip = this.#allCells.flat(); //array of avaliable cells for placing ship
@@ -58,7 +69,7 @@ export class ComputerPlayer extends Player {
       ) {
         let tempShipShape; // array of cells that are possible to ship
         do {
-          const randomDirection = Math.floor(Math.random() * 4) + 1; //gets random direction, number from 1 to 4
+          const randomDirection = this.#getRandomDirection();
           tempShipShape = this.#getPossibleShipShape(
             this.#getRandomCell(cellsFreeToShip),
             shipLength,
@@ -66,7 +77,7 @@ export class ComputerPlayer extends Player {
           );
         } while (tempShipShape.length !== shipLength); // finish loop when getPossibleShipShape returns ship with desired length
 
-        const shipShape = tempShipShape; // sets shipShape for array that contains Cell instances possible to ship
+        const shipShape = tempShipShape;
         const impossibleToShipCells = this.getImpossibleToShipCells(
           this.changeNameOfKeysForValues(shipShape)
         );
@@ -89,7 +100,7 @@ export class ComputerPlayer extends Player {
    Any shorter array than parameter length, means that desired ship shape collides with something
    * @param {SeaCell} cell // starting cell
    * @param {number} length //  length of ship
-   * @param {number} direction // 1-top, 2-right, 3-down, 4 left
+   * @param {number} direction // 1-bottom, 2-right, 3-top, 4 left
    * @returns {array}
    */
   #getPossibleShipShape(cell, length, direction) {
@@ -197,7 +208,7 @@ export class ComputerPlayer extends Player {
   }
 
   /**
-   * Algoritm to get rest of cells that are included in ship that alredy was hit, returns single cell
+   * Algoritm to get rest of cells that are included in ship that alredy was hit but not sunk, returns single cell that may be enemy ship
    * @returns {SeaCell}
    */
   #destroy() {
@@ -210,11 +221,14 @@ export class ComputerPlayer extends Player {
   }
 
   /**
-   * Returns next possible to be ship cell
-   * @returns {SeaCell}
+   * Selects the next cell to shoot when attempting to destroy a partially hit ship.
+   * Determines the direction of shooting based on previous hits and ship layout.
+   * If the ship is detected to be oriented horizontally or vertically, the next cell
+   * is selected accordingly to maximize the chances of hitting the ship.
+   * @returns {SeaCell} next cell to shoot
    */
   #destroyAnotherCell() {
-    let cellX = this.shotShip[0].x; //
+    let cellX = this.shotShip[0].x;
     let cellY = this.shotShip[0].y;
     let randomDirection = this.#getRandomDirection();
     let nextShootCoordinates = {};
@@ -225,27 +239,9 @@ export class ComputerPlayer extends Player {
       cellY
     );
 
-    // // while random directions is forbidden, get another random direction
-    // while (this.#forbiddenShotDirections.includes(randomDirection)) {
-    //   randomDirection = this.#getRandomDirection();
-    // }
-
-    // //prevents from choosing border cell as target
-    // if (cellX === 1 && randomDirection === 3) {
-    //   randomDirection = this.#getRandomDirection();
-    // }
-    // if (cellX === this.mapSize && randomDirection === 1) {
-    //   randomDirection = this.#getRandomDirection();
-    // }
-    // if (cellY === 1 && randomDirection === 4) {
-    //   randomDirection = this.#getRandomDirection();
-    // }
-    // if (cellX === this.mapSize && randomDirection === 2) {
-    //   randomDirection = this.#getRandomDirection();
-    // }
-
+    // depends on direction, sets coordinates for next shoot
     if (randomDirection === 1) {
-      cellX = this.#getShipCellWithMaxValue("x");
+      cellX = this.#getShipCellWithgreatestValue("x"); //when moving top start from cell with highest x
       nextShootCoordinates = {
         x: cellX + 1,
         y: cellY,
@@ -253,7 +249,7 @@ export class ComputerPlayer extends Player {
     }
 
     if (randomDirection === 2) {
-      cellY = this.#getShipCellWithMaxValue("y");
+      cellY = this.#getShipCellWithgreatestValue("y"); //when moving right start from cell with highest y
       nextShootCoordinates = {
         x: cellX,
         y: cellY + 1,
@@ -261,7 +257,7 @@ export class ComputerPlayer extends Player {
     }
 
     if (randomDirection === 3) {
-      cellX = this.#getShipCellWithMinValue("x");
+      cellX = this.#getShipCellWithMinValue("x"); //when moving top start from cell with smallest x
       nextShootCoordinates = {
         x: cellX - 1,
         y: cellY,
@@ -269,20 +265,22 @@ export class ComputerPlayer extends Player {
     }
 
     if (randomDirection === 4) {
-      cellY = this.#getShipCellWithMinValue("y");
+      cellY = this.#getShipCellWithMinValue("y"); //when moving left start from cell with smallest y
       nextShootCoordinates = {
         x: cellX,
         y: cellY - 1,
       };
     }
 
-    this.lastShootDirection = randomDirection;
+    this.lastShootDirection = randomDirection; // saves this direction, to use after feedback if shoot was succesful or not
+
     const nextShoot = this.#getCellFromCellsToShoot(nextShootCoordinates);
 
     if (nextShoot === null) {
       return this.#destroyAnotherCell();
     }
 
+    //if targeted cell is not inside array of cells left to shoot, destroyAnotherCell again
     if (
       !this.#cellsToShoot.some(
         (cell) => cell.x === nextShoot.x && cell.y === nextShoot.y
@@ -295,6 +293,15 @@ export class ComputerPlayer extends Player {
     return nextShoot;
   }
 
+  /**
+   * Validates if next shot direction is not forbidden direction or is border
+   * If validation passed, returns direction that was validated
+   * if validation not passed, returns one of possible directions
+   * @param {number} randomDirection The randomly selected shooting direction.
+   * @param {number} cellX The X-coordinate of the current cell.
+   * @param {number} cellY The Y-coordinate of the current cell.
+   * @returns {number}
+   */
   #validateRandomDirection(randomDirection, cellX, cellY) {
     let newDirection;
     newDirection = randomDirection;
@@ -320,16 +327,31 @@ export class ComputerPlayer extends Player {
     return newDirection;
   }
 
+  /**
+   * returns number from 1 to 4
+   * @returns {number}
+   */
   #getRandomDirection() {
     return Math.floor(Math.random() * 4) + 1;
   }
 
+  /**
+   * Finds cell matching coordinates passed in argument, in array of cells that are still possible to be shoot.
+   * If found, returns it.
+   * If not found returns null.
+   * @param {number, number} param0
+   * @returns {SeaCell}
+   */
   #getCellFromCellsToShoot({ x, y }) {
     return (
       this.#cellsToShoot.find((cell) => cell.x === x && cell.y === y) || null
     );
   }
 
+  /**
+   * removes cell from array of cells left to shoot
+   * @param {SeaCell} cell
+   */
   #eliminateCellToShoot(cell) {
     const newCellsToShoot = this.#cellsToShoot.filter(
       (cellToShoot) => !(cellToShoot.x === cell.x && cellToShoot.y === cell.y)
@@ -337,39 +359,53 @@ export class ComputerPlayer extends Player {
     this.#cellsToShoot = newCellsToShoot;
   }
 
+  /**
+   * Returns number of lowest y or x of cell that belongs to alredy shot but not sunk ship, depends what passed in parameter
+   * @param {string} value // x or y
+   * @returns {number}
+   */
   #getShipCellWithMinValue(value) {
     let minValue = Infinity;
-    let minValueShipCell = null;
 
+    // Iterates through shot ship cells, if value (choosen in parameter) of current cell is lower
+    // han minValue, overwrites minValue for this value, same with cell object that contains this value
     for (let i = 0; i < this.shotShip.length; i++) {
       if (this.shotShip[i][value] < minValue) {
         minValue = this.shotShip[i][value];
-        minValueShipCell = this.shotShip[i];
       }
     }
-    return minValueShipCell[value];
-  }
 
-  #getShipCellWithMaxValue(value) {
-    let maxValue = 0;
-    let maxValueShipCell = null;
-
-    for (let i = 0; i < this.shotShip.length; i++) {
-      if (this.shotShip[i][value] > maxValue) {
-        maxValue = this.shotShip[i][value];
-        maxValueShipCell = this.shotShip[i];
-      }
-    }
-    return maxValueShipCell[value];
+    return minValue;
   }
 
   /**
-   * Method is made to reveal if ship that destroying is in progress were placed horizontaly or verticaly
+   * Returns number of highest y or x of cell that belongs to alredy shot but not sunk ship, depends what passed in parameter
+   * @param {string} value // x or y
+   * @returns {number}
+   */
+  #getShipCellWithgreatestValue(value) {
+    let greatestValue = 0;
+
+    // Iterates through shot ship cells, if value (choosen in parameter) of current cell is greater
+    // than greatestValue, overwrites greatestValue for this value, same with cell object that contains this value
+
+    for (let i = 0; i < this.shotShip.length; i++) {
+      if (this.shotShip[i][value] > greatestValue) {
+        greatestValue = this.shotShip[i][value];
+      }
+    }
+    return greatestValue;
+  }
+
+  /**
+   * Determines the shooting directions based on the orientation of the partially hit ship.
+   * Forbids shooting directions that are oposite to the ship's orientation to prevent
+   * shooting in wrong directions. Adjusts the shooting strategy based on whether the
+   * ship is detected to be oriented horizontally or vertically.
    */
   #findDirectionsToShoot() {
-    /**in case that algorythm blind aimed next ship element, set possibilities to shot verticaly or horizontaly depending
-     * on how were aimed two first elements
-     */
+    // Compares both cells x, and y. If X matches it means that ship lays horizontaly.
+    // If Y matches ship lays Verticaly
     const firstCellX = this.shotShip[0].x;
     const firstCellY = this.shotShip[0].y;
     const restOfShotShip = this.shotShip.slice(1);
@@ -379,7 +415,6 @@ export class ComputerPlayer extends Player {
       })
     ) {
       this.#forbiddenShotDirections.push(1, 3);
-      console.log("dodaje zakzane 1 i 3");
     }
 
     if (
@@ -388,10 +423,10 @@ export class ComputerPlayer extends Player {
       })
     ) {
       this.#forbiddenShotDirections.push(2, 4);
-      console.log("dodaje zakzane 2 i 4");
     }
   }
 
+  /**Resets flags for destroying algorythm, deletes cells of sunk ship and cells around it from cells possible to shoot */
   resetHitInfo() {
     const shotShip = this.shotShip;
     this.shotShip = [];
@@ -399,10 +434,16 @@ export class ComputerPlayer extends Player {
     this.#eliminateCellsToShoot(shotShip);
   }
 
+  /**
+   * deletes cells of ships and around it from cells possible to shoot
+   * @param {array} shotShip
+   */
   #eliminateCellsToShoot(shotShip) {
     const shotShipCoordinates = this.changeNameOfKeysForValues(shotShip);
     const impossibleToShipCells =
       this.getImpossibleToShipCells(shotShipCoordinates);
+
+    //filters out cells that are still possible to ship without cells around sunken ship
     const newCellsToShoot = this.#cellsToShoot.filter((cellToShot) => {
       return !impossibleToShipCells.some((impossibleCell) => {
         return (
@@ -423,6 +464,8 @@ export class ComputerPlayer extends Player {
         ) &&
         lastShootDirection !== undefined
       ) {
+        // If the last shoot direction is not in the forbidden shot directions
+        // and it is defined, add it to the forbidden shot directions
         this.#forbiddenShotDirections.push(lastShootDirection);
       }
     }

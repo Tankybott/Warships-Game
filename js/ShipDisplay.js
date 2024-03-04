@@ -1,14 +1,14 @@
 import { UI } from "./UI.js";
 
-const DISPLAY_COLUMN_CSS = "ships-display__display-column";
-const SHIP_CSS = "ships-display__ship";
-const SHIP_DISCATIVE_CSS = "ships-display__ship--disactive";
-const DISPLAY_COUNTER_HIDDEN = "ships-display__ship-counter--hidden";
-
-const DATA_DISPLAYED_SHIP = "data-displayed-ship";
-const SHIP_SMALL_GAME_CLASS = "ships-display__ship--small-game";
-
 export class ShipDisplay extends UI {
+  /**
+   *
+   * @param {number} numberOfFiveCellShips
+   * @param {number} numberOfFourCellShips
+   * @param {number} numberOfThreeCellShips
+   * @param {number} numberOfTwoCellShips
+   * @param {number} numberOfOneCellShips
+   */
   constructor(
     numberOfFiveCellShips,
     numberOfFourCellShips,
@@ -45,6 +45,9 @@ export class ShipDisplay extends UI {
     this.shipsDisplayElement.innerHTML = "";
   }
 
+  /**
+   * @returns {number}
+   */
   #countAllShips() {
     const numberOfAllShips = this.shipsArray.reduce(
       (summaryNumberOfAllShips, numberOfSpecyficShips) =>
@@ -64,13 +67,20 @@ export class ShipDisplay extends UI {
     this.#fadeOutInShipsNumber();
   }
 
+  /**
+   * Handles animating when number of ship decresed
+   */
   #fadeOutInShipsNumber() {
     const refreshText = () => {
       this.#displayNumberOfShips();
-      this.shipsDisplayCounterElement.classList.remove(DISPLAY_COUNTER_HIDDEN);
+      this.shipsDisplayCounterElement.classList.remove(
+        this.cssClasses.displayCounterHidden
+      );
     };
 
-    this.shipsDisplayCounterElement.classList.add(DISPLAY_COUNTER_HIDDEN);
+    this.shipsDisplayCounterElement.classList.add(
+      this.cssClasses.displayCounterHidden
+    );
     this.shipsDisplayCounterElement.addEventListener(
       "transitionend",
       refreshText
@@ -90,6 +100,10 @@ export class ShipDisplay extends UI {
     });
   }
 
+  /**
+   * returns amount of all ship types in game right now
+   * @returns {number}
+   */
   #getNumberOfShipTypes() {
     let numberOfShipsTypes = 0;
     this.shipsArray.forEach((shipType) => {
@@ -103,7 +117,7 @@ export class ShipDisplay extends UI {
 
   #createColumnElement(shipTypeDestination) {
     const element = document.createElement("div");
-    element.classList.add(DISPLAY_COLUMN_CSS);
+    element.classList.add(this.cssClasses.displayColumn);
     element.setAttribute(`data-column-${shipTypeDestination}`, "");
     return element;
   }
@@ -134,39 +148,49 @@ export class ShipDisplay extends UI {
     }
   }
 
+  //handles changes for css that have to be done because of various game levels
   #addShipSmallGameClass() {
     const ships = this.getElements(this.UISelectors.displayedShip);
     ships.forEach((ship) => {
-      ship.classList.add(SHIP_SMALL_GAME_CLASS);
+      ship.classList.add(this.cssClasses.displayShipSmallGame);
     });
   }
 
   #removeShipSmallGameClass() {
     const ships = this.getElements(this.UISelectors.displayedShip);
     ships.forEach((ship) => {
-      if (ship.classList.contains(SHIP_SMALL_GAME_CLASS)) {
-        ship.classList.remove(SHIP_SMALL_GAME_CLASS);
+      if (ship.classList.contains(this.cssClasses.displayShipSmallGame)) {
+        ship.classList.remove(this.cssClasses.displayShipSmallGame);
       }
     });
   }
 
   #createShipElement(shipSize) {
     const element = document.createElement("div");
-    element.classList.add(SHIP_CSS);
-    element.classList.add(SHIP_DISCATIVE_CSS);
+    element.classList.add(this.cssClasses.displayShip);
+    element.classList.add(this.cssClasses.displayShipDisactivated);
     element.innerText = shipSize;
-    element.setAttribute(DATA_DISPLAYED_SHIP, "");
+    element.setAttribute("data-displayed-ship", "");
 
     return element;
   }
 
+  /**
+   * shows ship as avtive in choosen column
+   * @param {number} colNumber
+   * @param {number} shipNumber
+   */
   activateShip(colNumber, shipNumber) {
     const column = this.getElement(`[data-column-${colNumber}]`);
     const shipElement = column.querySelector(`:nth-last-child(${shipNumber})`);
 
-    shipElement.classList.remove(SHIP_DISCATIVE_CSS);
+    shipElement.classList.remove(this.cssClasses.displayShipDisactivated);
   }
 
+  /**
+   * shows ship as disactive in choosen column
+   * @param {number} colNumber
+   */
   disactivateShip(colNumber) {
     const column = this.getElement(`[data-column-${colNumber}]`);
     //selects first element in column which has no class Disactive
@@ -174,8 +198,12 @@ export class ShipDisplay extends UI {
 
     for (let i = columnElements.length - 1; i >= 0; i--) {
       const columnElement = columnElements[i];
-      if (!columnElement.classList.contains(SHIP_DISCATIVE_CSS)) {
-        columnElement.classList.add(SHIP_DISCATIVE_CSS);
+      if (
+        !columnElement.classList.contains(
+          this.cssClasses.displayShipDisactivated
+        )
+      ) {
+        columnElement.classList.add(this.cssClasses.displayShipDisactivated);
         break;
       }
     }

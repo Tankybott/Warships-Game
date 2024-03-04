@@ -1,8 +1,5 @@
 import { UI } from "./UI.js";
 
-const PAGE_HIDDEN_CSS = "rules__card--hidden";
-const RULES_CONTAINER_HIDDEN_CSS = "rules-container--hidden";
-
 export class Rules extends UI {
   constructor() {
     super();
@@ -14,9 +11,6 @@ export class Rules extends UI {
     this.numberOfPages = this.rulesCardsElement.children.length;
   }
 
-  /**
-   * Binds html elements to properites
-   */
   #bindElements() {
     this.exitButtonElement = this.getElement(this.UISelectors.rulesExitButton);
     this.rightArrowButtonElement = this.getElement(
@@ -71,7 +65,7 @@ export class Rules extends UI {
 
     //when lastg page === null it means that rules were just turned on it just displays first rules page
     if (this.lastPageNumber != null) {
-      lastPage.classList.add(PAGE_HIDDEN_CSS);
+      lastPage.classList.add(this.cssClasses.rulesCardHidden);
       this.rightArrowButtonElement.disabled = true;
       this.leftArrowButtonElement.disabled = true;
 
@@ -82,7 +76,7 @@ export class Rules extends UI {
 
       lastPage.addEventListener("transitionend", handleTransitionEnd);
     } else {
-      page.classList.remove(PAGE_HIDDEN_CSS);
+      page.classList.remove(this.cssClasses.rulesCardHidden);
     }
   }
 
@@ -91,7 +85,7 @@ export class Rules extends UI {
    * @param {HTMLElement} page
    */
   #handleLastPageFadeOut(page) {
-    page.classList.remove(PAGE_HIDDEN_CSS);
+    page.classList.remove(this.cssClasses.rulesCardHidden);
     const handleTransitionEnd = () => {
       this.leftArrowButtonElement.disabled = false;
       this.rightArrowButtonElement.disabled = false;
@@ -102,14 +96,19 @@ export class Rules extends UI {
 
   #closeRules() {
     this.#hideAllCards();
-    this.rulesContainerElement.classList.add(RULES_CONTAINER_HIDDEN_CSS);
+    this.rulesContainerElement.classList.add(
+      this.cssClasses.rulesContainerHidden
+    );
   }
 
+  /**
+   * hides all cards inside rules container
+   */
   #hideAllCards() {
     const allCards = this.rulesCardsElement.children;
     for (let card of allCards) {
-      if (!card.classList.contains(PAGE_HIDDEN_CSS)) {
-        card.classList.add(PAGE_HIDDEN_CSS);
+      if (!card.classList.contains(this.cssClasses.rulesCardHidden)) {
+        card.classList.add(this.cssClasses.rulesCardHidden);
       }
     }
   }
@@ -118,6 +117,8 @@ export class Rules extends UI {
     this.pageNumber = 0;
     this.lastPageNumber = null;
     this.#displayPage();
-    this.rulesContainerElement.classList.remove(RULES_CONTAINER_HIDDEN_CSS);
+    this.rulesContainerElement.classList.remove(
+      this.cssClasses.rulesContainerHidden
+    );
   }
 }

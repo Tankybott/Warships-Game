@@ -1,8 +1,5 @@
 import { ShootCell } from "./ShootCell.js";
 import { Map } from "./Map.js";
-import { HIT_CSS, SHOOT_TARGET_CSS } from "./HumanPlayer.js";
-
-const HIDDEN_MAP_CSS = "game-container__shoot-map--hidden";
 
 export class ShootMap extends Map {
   constructor(numberOfCells) {
@@ -13,10 +10,6 @@ export class ShootMap extends Map {
     this.#generateShootCells();
   }
   #shootCells = [];
-
-  showCells() {
-    // console.log(this.#shootCells);
-  }
 
   #bindElements() {
     this.shootMapElement = this.getElement(this.UISelectors.shootMap);
@@ -31,13 +24,10 @@ export class ShootMap extends Map {
     }
   }
 
-  setShootCell({ XValue, YValue }) {
+  setShootCell({ x, y }) {
     const cell = this.#shootCells
       .flat()
-      .find(
-        (cell) =>
-          cell.x === parseInt(XValue, 10) && cell.y === parseInt(YValue, 10)
-      );
+      .find((cell) => cell.x === parseInt(x, 10) && cell.y === parseInt(y, 10));
 
     cell._isShot = true;
   }
@@ -89,11 +79,11 @@ export class ShootMap extends Map {
 
   #refreshConfigurationForCells(shotCellsElements = [], hitCellsElements = []) {
     shotCellsElements.forEach((cell) => {
-      cell.classList.add(SHOOT_TARGET_CSS);
+      cell.classList.add(this.cssClasses.shootTarget);
     });
 
     hitCellsElements.forEach((cell) => {
-      cell.classList.add(HIT_CSS);
+      cell.classList.add(this.cssClasses.hit);
     });
   }
 

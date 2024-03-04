@@ -1,12 +1,14 @@
-import { SeaCell, DATA_SEA_CELL } from "./SeaCell.js";
+import { SeaCell } from "./SeaCell.js";
 import { Map } from "./Map.js";
-
-export const DATA_IMPOSSIBLE_TO_SHIP = "data-impossible-to-ship";
 
 export class SeaMap extends Map {
   #seaCells;
   #lastSunkShipNumber;
 
+  /**
+   *
+   * @param {number} numberOfCells
+   */
   constructor(numberOfCells) {
     super(numberOfCells);
     this.numberOfCells = numberOfCells;
@@ -19,10 +21,6 @@ export class SeaMap extends Map {
     this.#bindElements();
   }
 
-  showCells() {
-    // console.log(this.#seaCells);
-  }
-
   get seaCells() {
     return this.#seaCells;
   }
@@ -31,6 +29,10 @@ export class SeaMap extends Map {
     this.seaMapElement = this.getElement(this.UISelectors.seaMap);
   }
 
+  /**
+   * Changes properties of seaCells setting possiblity of being ship to false.
+   * @param {Array} cellsToChange
+   */
   setImpossibleToShipCells(cellsToChange) {
     cellsToChange.forEach(({ XValue, YValue }) => {
       const cellToChange = this.#seaCells
@@ -45,6 +47,11 @@ export class SeaMap extends Map {
     });
   }
 
+  /**
+   * Changes properties of seaCells setting number of ship to cells passed in argumnet.
+   * @param {Array} cellsToChange
+   * @param {number} number
+   */
   setShipCells(cellsToChange, number) {
     cellsToChange.forEach(({ XValue, YValue }) => {
       const cellToChange = this.#seaCells
@@ -60,6 +67,7 @@ export class SeaMap extends Map {
   }
 
   #generateSeaCells() {
+    // this.numberOfCells + 2 beacuse of border cells
     for (let row = 0; row < this.numberOfCells + 2; row++) {
       this.#seaCells[row] = [];
       for (let col = 0; col < this.numberOfCells + 2; col++) {
@@ -68,6 +76,9 @@ export class SeaMap extends Map {
     }
   }
 
+  /**
+   * renders html representation of empty sea map
+   */
   renderSeaMap() {
     this.seaMapElement.innerHTML = "";
     const type = "[data-sea-cell]";
@@ -79,10 +90,14 @@ export class SeaMap extends Map {
     this.numberTopMapEdge(this.#seaCells, type);
   }
 
+  /**
+   * refreshes sea map to represent seaCells objects as html elements live.
+   */
   refreshSeaMap() {
     const shipCells = [];
     const impossibleToShipCells = [];
     const hitCells = [];
+    // itreates through #seaCells, pushes cells matching specyfic requirements to correct arrays
     this.#seaCells.flat().forEach((cell) => {
       if (cell._shipNumber > 0) {
         shipCells.push(cell);
@@ -139,7 +154,7 @@ export class SeaMap extends Map {
     hitCellsElements = []
   ) {
     shipCellsElements.forEach((cell) => {
-      cell.classList.add("ship");
+      cell.classList.add(this.cssClasses.ship);
     });
 
     imposibleToShipElements.forEach((cell) => {
@@ -147,11 +162,13 @@ export class SeaMap extends Map {
     });
 
     hitCellsElements.forEach((cell) => {
-      cell.classList.add("sunk");
+      cell.classList.add(this.cssClasses.sunk);
     });
   }
 
-  //return 1 = hit, return 2 = hit, and sunk, return 3 = missed;
+  /**
+   * return 1 = hit, return 2 = hit, and sunk, return 3 = missed;
+   */
   checkIfHit({ XValue, YValue }) {
     const cell = this.#seaCells
       .flat()
@@ -165,7 +182,7 @@ export class SeaMap extends Map {
       cell._isHit = true;
       const shipNumber = cell._shipNumber;
       if (this.#checkIfSunk(shipNumber)) {
-        return "sunk";
+        return this.cssClasses.sunk;
       } else {
         return "hit";
       }
@@ -174,6 +191,11 @@ export class SeaMap extends Map {
     }
   }
 
+  /**
+   * checks if there are any of ship cells with passed ship number
+   * @param {number} shipNumber
+   * @returns {bolean}
+   */
   #checkIfSunk(shipNumber) {
     if (
       this.#seaCells
@@ -187,6 +209,10 @@ export class SeaMap extends Map {
     }
   }
 
+  /**
+   * returns length of last sunken ship
+   * @returns {number}
+   */
   checkLengthOfSunkShip() {
     if (this.#lastSunkShipNumber != 0) {
       const sunkShipCells = this.#seaCells
@@ -196,14 +222,18 @@ export class SeaMap extends Map {
     }
   }
 
+  /**
+   * shows animation of last enemy shot on players map
+   * @param {object}
+   */
   setAnimationOnLastHit({ x, y }) {
     const selector = `[data-sea-cell][data-x="${x}"][data-y="${y}"]`;
     const cellToAnimate = this.getElement(selector);
     const removeAnimation = () => {
-      cellToAnimate.classList.remove("shot");
+      cellToAnimate.classList.remove(this.cssClasses.shot);
     };
 
-    cellToAnimate.classList.add("shot");
+    cellToAnimate.classList.add(this.cssClasses.shot);
     cellToAnimate.addEventListener("animationend", removeAnimation);
   }
 }
