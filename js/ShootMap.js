@@ -32,6 +32,9 @@ export class ShootMap extends Map {
     cell._isShot = true;
   }
 
+  /**
+   * renders HTML reresentation of empty shoot map
+   */
   renderShootMap() {
     this.shootMapElement.innerHTML = "";
     const type = "[data-shoot-cell]";
@@ -43,6 +46,9 @@ export class ShootMap extends Map {
     this.numberTopMapEdge(this.#shootCells, type);
   }
 
+  /**
+   * refreshes shoot map to represent shoot cells objects as html elements live.
+   */
   refreshShootMap() {
     const shotCells = [];
     const hitCells = [];
@@ -86,7 +92,7 @@ export class ShootMap extends Map {
       cell.classList.add(this.cssClasses.hit);
     });
   }
-
+  
   setCellAsHit({ x, y }) {
     const cell = this.#shootCells
       .flat()

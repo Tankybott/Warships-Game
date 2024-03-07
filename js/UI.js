@@ -42,7 +42,7 @@ export class UI {
     sunk: "sunk",
     shootTargetHover: "shoot-target-hover",
     hit: "hit",
-    shit: "shot",
+    shot: "shot",
     blink: "blink",
     declineBlink: "blink-red",
     borderCell: "border-cell",
