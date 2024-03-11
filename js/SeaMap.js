@@ -227,7 +227,6 @@ export class SeaMap extends Map {
    * @param {object}
    */
   setAnimationOnLastHit({ x, y }) {
-    console.log(x, y);
     const selector = `[data-sea-cell][data-x="${x}"][data-y="${y}"]`;
     const cellToAnimate = this.getElement(selector);
     const removeAnimation = () => {
